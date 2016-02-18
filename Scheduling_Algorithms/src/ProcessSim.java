@@ -2,7 +2,6 @@
  * Simulates a process that arrives to the cpu at a certain time, runs for a certain time
  * and has a certain priority level
  * 
- * test comment 2956
  * @author Jonathan Neel
  *
  */
