@@ -3,7 +3,7 @@ import java.util.ArrayDeque;
 import java.util.PriorityQueue;
 
 /**
- * Shortest job first algorithm schedules by shortest run time.
+ * Shortest job first algorithm (non-preemptive) schedules by shortest run time.
  * @author Katherine Soohoo
  */
 public class ShortestJobFirst
@@ -17,13 +17,18 @@ public class ShortestJobFirst
         quantum = 0;
         processList = list;
         inProgress = new PriorityQueue<ProcessSim>(new RunTimeComparator());
+        for (ProcessSim p : processList)
+        {
+            System.out.print(p.getName() + " ");
+        }
+        System.out.println();
     }
     
     public void run()
     {
         ProcessSim currentProcess;
         
-        while (quantum < 100)
+        while (quantum < 10)
         {
             // add new processes
             while (!processList.isEmpty() && processList.peek().getArrivalTime() <= quantum)
@@ -31,26 +36,35 @@ public class ShortestJobFirst
                 inProgress.add(processList.pop());
             }
             
-            // execute current process
+            // execute current process until done
             if(!inProgress.isEmpty())
             {
                 currentProcess = inProgress.peek();
-                currentProcess.setRemainingRunTime(currentProcess.getRemainingRunTime() - 1);
-                if (currentProcess.getRemainingRunTime() <= 0)
+                while (currentProcess.getRemainingRunTime() > 0)
                 {
-                    System.out.print(inProgress.poll().getName() + " ");
+                    currentProcess.setRemainingRunTime(currentProcess.getRemainingRunTime() - 1);
+                    quantum += 1;
                 }
+                System.out.print("[Q:" + quantum + ", P:" + inProgress.poll().getName() + "] ");
             }
-            
-            // next time slice
-            quantum += 1;
+            // CPU idle, no process in progress
+            else
+            {
+                quantum += 1;
+            }
         }
         
         // execute remaining processes
         System.out.print("\nAfter 100 quantum: ");
         while (!inProgress.isEmpty())
         {
-            System.out.print(inProgress.poll().getName() + " ");
+            currentProcess = inProgress.peek();
+            while (currentProcess.getRemainingRunTime() > 0)
+            {
+                currentProcess.setRemainingRunTime(currentProcess.getRemainingRunTime() - 1);
+                quantum += 1;
+            }
+            System.out.print("[Q:" + quantum + ", P:" + inProgress.poll().getName() + "] ");
         }
     }
 }
