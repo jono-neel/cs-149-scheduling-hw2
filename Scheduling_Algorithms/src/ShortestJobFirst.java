@@ -3,7 +3,7 @@ import java.util.ArrayDeque;
 import java.util.PriorityQueue;
 
 /**
- * Shortest job first algorithm (non-preemptive) schedules by shortest run time.
+ * Shortest job first algorithm schedules by shortest run time (non-preemptive).
  * @author Katherine Soohoo
  */
 public class ShortestJobFirst
@@ -27,8 +27,8 @@ public class ShortestJobFirst
     public void run()
     {
         ProcessSim currentProcess;
-        
-        while (quantum < 10)
+        System.out.print("During 100 quantum: ");
+        while (quantum < 100)
         {
             // add new processes
             while (!processList.isEmpty() && processList.peek().getArrivalTime() <= quantum)
