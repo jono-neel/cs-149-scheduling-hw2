@@ -3,10 +3,10 @@ import java.util.ArrayDeque;
 
 public class RoundRobin 
 {
-	ArrayDeque<Process> inProgress = new ArrayDeque<Process>();
-	ArrayDeque<Process> processList = new ArrayDeque<Process>();
+	ArrayDeque<ProcessSim> inProgress = new ArrayDeque<ProcessSim>();
+	ArrayDeque<ProcessSim> processList = new ArrayDeque<ProcessSim>();
 	float quantum = 0;
-	public RoundRobin(ArrayDeque<Process> pl)
+	public RoundRobin(ArrayDeque<ProcessSim> pl)
 	{
 		processList = pl;
 	}
@@ -36,11 +36,11 @@ public class RoundRobin
 				System.out.println("	Estimated Time  : " + inProgress.peek().getRunTime());
 				System.out.println("	Remaining Time before quantum: " + inProgress.peek().getRemainingRunTime());
 				
-				inProgress.peek().timeSpent(1);
+				inProgress.peek().setRemainingRunTime(inProgress.peek().getRemainingRunTime() - 1);
 				
 				System.out.println("	Remaining Time after quantum : " + inProgress.peek().getRemainingRunTime());
 				
-				if(inProgress.peek().getRemainingTime() <= 0)
+				if(inProgress.peek().getRemainingRunTime() <= 0)
 				{
 					System.out.println("				Process: " + inProgress.peek().getName() + " complete...");
 					quantum += inProgress.pop().getRemainingRunTime();

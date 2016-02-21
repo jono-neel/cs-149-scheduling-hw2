@@ -21,16 +21,18 @@ public class Tester {
 		//Collections.sort(listByArrivals, new PriorityComparator());
 		//Collections.sort(listByArrivals, new RunTimeComparator());
 		Collections.sort(listByArrivals, new ArrivalComparator()); //put the list in order of arrival times
+		ArrayDeque<ProcessSim> processQueue = new ArrayDeque<ProcessSim>();
 		for(ProcessSim p : listByArrivals)
 		{
 			System.out.println("Process " + p.getName());
 			System.out.println("Arrival time: " + p.getArrivalTime());
 			System.out.println("Runtime: " + p.getRunTime());
 			System.out.println("Priority: " + p.getPriority() + "\n");
-	
+			processQueue.add(p);
 		}
 		FirstComeFirstServe FCFSTest = new FirstComeFirstServe();
+		RoundRobin testRobin = new RoundRobin(processQueue);
 		FCFSTest.run(listByArrivals); //run the FCFS algorithm
-		
+		testRobin.run();
 	}
 }
