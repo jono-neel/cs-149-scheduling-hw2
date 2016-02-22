@@ -19,9 +19,9 @@ public class Tester {
         // instantiate scheduling algorithms
         FirstComeFirstServe FCFSTest = new FirstComeFirstServe(generateProcessQueue());
         ShortestJobFirst SJFTest = new ShortestJobFirst(generateProcessQueue());
-        //ShortestRemainingTime SRTTest = new ShortestRemainingTime(processQueue.clone());
+        //ShortestRemainingTime SRTTest = new ShortestRemainingTime(generateProcessQueue());
         RoundRobin RRTest = new RoundRobin(generateProcessQueue());
-        // HighestPriorityFirst HPFTest = new HighestPriorityFirst(processQueue.clone());
+        // HighestPriorityFirst HPFTest = new HighestPriorityFirst(generateProcessQueue());
         
         // run scheduling algorithms
         FCFSTest.run();
@@ -31,10 +31,10 @@ public class Tester {
         //HPFTest.run
         
         // print results
-        //FCFSTest.printRun();
-        //SJFTest.printRun()
+        FCFSTest.printRun();
+        SJFTest.printRun()
         //SJFTest.printRun();
-        //RRTest.printRun();
+        RRTest.printRun();
         //HPFTest.printRun();
     }
     
