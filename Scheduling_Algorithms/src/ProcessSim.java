@@ -12,6 +12,7 @@ public class ProcessSim {
 	private String name;
 	private int priority;
         private boolean readyState;
+        private float xArrivalTime;
         
         /**
          * Creates empty process.
@@ -21,6 +22,7 @@ public class ProcessSim {
 		arrivalTime = 0;
 		expectedRunTime = 0;
 		remainingRunTime = 0;
+                xArrivalTime = arrivalTime;
 		priority = 0;
 		name = "null";
                 readyState = false;
@@ -38,6 +40,7 @@ public class ProcessSim {
 		this.arrivalTime = arrivalTime;
 		expectedRunTime = runTime;
 		remainingRunTime = runTime;
+                xArrivalTime = arrivalTime;
 		this.priority = priority;
 		this.name = name;
                 readyState = false;
@@ -88,6 +91,14 @@ public class ProcessSim {
         
         public void setReadyState(boolean readyState) {
             this.readyState = readyState;
+        }
+        
+        public float getXArrivalTime() {
+                return xArrivalTime;
+        }
+
+        public void setXArrivalTime(float xArrivalTime) {
+                this.xArrivalTime = xArrivalTime;
         }
         
         public String toString() {
