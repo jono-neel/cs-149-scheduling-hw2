@@ -19,25 +19,27 @@ public class Tester {
         // instantiate scheduling algorithms
         FirstComeFirstServe FCFSTest = new FirstComeFirstServe(generateProcessQueue());
         ShortestJobFirst SJFTest = new ShortestJobFirst(generateProcessQueue());
-        //ShortestRemainingTime SRTTest = new ShortestRemainingTime(generateProcessQueue());
+        ShortestRemainingTime SRTTest = new ShortestRemainingTime(generateProcessQueue());
         RoundRobin RRTest = new RoundRobin(generateProcessQueue());
         // HighestPriorityFirst HPFTest = new HighestPriorityFirst(generateProcessQueue());
         
         // run scheduling algorithms
         FCFSTest.run();
         SJFTest.run();
-        //SRTTest.run()
+        SRTTest.run();
         RRTest.run();
-        //HPFTest.run
+        //HPFTest.run();
         
         // print results
         System.out.println("+==========Start First Come First Serve Algorithm Test Run 1==========+");
         FCFSTest.printRun();
-        System.out.println("+======================End FCFS Test Run 1============================+\n");
-        System.out.println("+==========Start Shortest Job First Algorithm Test Run 1==========+");
+        System.out.println("+======================End FCFS Test Run 1==========================+\n");
+        System.out.println("+============Start Shortest Job First Algorithm Test Run 1============+");
         SJFTest.printRun();
-        System.out.println("+======================End SJF Test Run 1============================+\n");
-        //SJFTest.printRun();
+        System.out.println("+======================End SJF Test Run 1===========================+\n");
+        System.out.println("+=========Start Shortest Remaining Time Algorithm Test Run 1==========+");
+        SRTTest.printRun();
+        System.out.println("+======================End SRT Test Run 1===========================+\n");
         System.out.println("+==========Start Round Robin Algorithm Test Run 1==========+");
         RRTest.printRun();
         System.out.println("+======================End Round Robin Test Run 1============================+\n");
