@@ -1,9 +1,9 @@
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 
 /**
- * An abstract class that all scheduling algorithms should inherit. May need to add more
- * or may not be needed at all, I'm not sure.
+ * An abstract class that all scheduling algorithms should inherit.
  * @author Jonathan Neel, Katherine Soohoo
  *
  */
@@ -13,8 +13,9 @@ public abstract class SchedulingAlgorithm
     protected float totalTurnaroundTime = 0;
     protected float totalWaitTime = 0;
     protected float totalResponseTime = 0;
+    protected ArrayDeque<ProcessSim> processQueue;
     protected ArrayDeque<ProcessSim> processList;
-    protected int processListSize;
+    protected ArrayList<ProcessSim> timeChart;
     
     /**
      * Creates a scheduling algorithm with list of simulated processes.
@@ -22,8 +23,9 @@ public abstract class SchedulingAlgorithm
      */
     public SchedulingAlgorithm(ArrayDeque<ProcessSim> list)
     {
-        processList = list;
-        processListSize = list.size();
+        processQueue = list;
+        processList = list.clone();
+        timeChart = new ArrayList<>();
     }
     
     /**
@@ -32,7 +34,7 @@ public abstract class SchedulingAlgorithm
     public abstract void run();
     
     /**
-     * Prints algorithm run statistics
+     * Prints algorithm run outputs.
      * Turnaround Time = wait time + run time
      * Wait Time = arrival time + time when execution begins
      * Response Time = ?
@@ -40,13 +42,33 @@ public abstract class SchedulingAlgorithm
      */
     protected void printRun()
     {
+        // processes created
+        System.out.println("Processes Created:" );
+        for (ProcessSim ps : processList)
+        {
+            System.out.println(ps);
+        }
+        
+        // time chart
+        System.out.print("Time Chart: [");
+        for (int i = 0; i < timeChart.size(); i++)
+        {
+            System.out.print(timeChart.get(i).getName());
+            if (i != timeChart.size() - 1)
+            {
+                System.out.print(", ");
+            }
+        }
+        System.out.println("]");
+        
+        // statistics
         System.out.println("Average Turnaround Time: "
-                + totalTurnaroundTime / processListSize);
+                + totalTurnaroundTime / processList.size());
         System.out.println("Average Wait Time: "
-                + totalWaitTime / processListSize);
+                + totalWaitTime / processList.size());
         System.out.println("Average Response Time: "
-                + totalResponseTime / processListSize);
+                + totalResponseTime / processList.size());
         System.out.println("Throuhput: "
-                + quantum / processListSize);
+                + quantum / processList.size());
     }
 }
