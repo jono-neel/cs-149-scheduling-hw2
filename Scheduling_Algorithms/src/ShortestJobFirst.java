@@ -59,9 +59,9 @@ public class ShortestJobFirst extends SchedulingAlgorithm
         // run process until finished
         while (process.getRemainingRunTime() > 0)
         {
+            timeChart.add(process);
             process.setRemainingRunTime(process.getRemainingRunTime() - 1);
             quantum += 1;
-            timeChart.add(process);
         }
     }
 }
