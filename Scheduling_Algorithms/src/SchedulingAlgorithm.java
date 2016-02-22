@@ -13,8 +13,8 @@ public abstract class SchedulingAlgorithm
     protected float totalTurnaroundTime = 0;
     protected float totalWaitTime = 0;
     protected float totalResponseTime = 0;
-    protected ArrayDeque<ProcessSim> processQueue;
     protected ArrayDeque<ProcessSim> processList;
+    protected ArrayDeque<ProcessSim> processListClone;
     protected ArrayList<ProcessSim> timeChart;
     
     /**
@@ -23,8 +23,8 @@ public abstract class SchedulingAlgorithm
      */
     public SchedulingAlgorithm(ArrayDeque<ProcessSim> list)
     {
-        processQueue = list;
-        processList = list.clone();
+        processList = list;
+        processListClone = list.clone();
         timeChart = new ArrayList<>();
     }
     
@@ -44,7 +44,7 @@ public abstract class SchedulingAlgorithm
     {
         // processes created
         System.out.println("Processes Created:" );
-        for (ProcessSim ps : processList)
+        for (ProcessSim ps : processListClone)
         {
             System.out.println(ps);
         }
@@ -63,12 +63,12 @@ public abstract class SchedulingAlgorithm
         
         // statistics
         System.out.println("Average Turnaround Time: "
-                + totalTurnaroundTime / processList.size());
+                + totalTurnaroundTime / processListClone.size());
         System.out.println("Average Wait Time: "
-                + totalWaitTime / processList.size());
+                + totalWaitTime / processListClone.size());
         System.out.println("Average Response Time: "
-                + totalResponseTime / processList.size());
+                + totalResponseTime / processListClone.size());
         System.out.println("Throuhput: "
-                + quantum / processList.size());
+                + processListClone.size() / quantum);
     }
 }
