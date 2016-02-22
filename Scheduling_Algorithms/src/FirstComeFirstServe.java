@@ -65,5 +65,6 @@ public class FirstComeFirstServe extends SchedulingAlgorithm
             quantum += 1;
         }
         totalTurnaroundTime += (quantum - process.getArrivalTime());
+        totalResponseTime += (quantum - process.getArrivalTime());
     }    
 }
