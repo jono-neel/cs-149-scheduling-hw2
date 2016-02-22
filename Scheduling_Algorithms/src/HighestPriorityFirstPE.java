@@ -11,15 +11,17 @@ public class HighestPriorityFirstPE extends SchedulingAlgorithm {
     public HighestPriorityFirstPE(ArrayDeque<ProcessSim> list) 
     {
             super(list);
-            processQueue1 = new PriorityQueue<>(new ArrivalComparator());
-            processQueue2 = new PriorityQueue<>(new ArrivalComparator());
-            processQueue3 = new PriorityQueue<>(new ArrivalComparator());
-            processQueue4 = new PriorityQueue<>(new ArrivalComparator());
+            processQueue1 = new PriorityQueue<>(new XArrivalComparator());
+            processQueue2 = new PriorityQueue<>(new XArrivalComparator());
+            processQueue3 = new PriorityQueue<>(new XArrivalComparator());
+            processQueue4 = new PriorityQueue<>(new XArrivalComparator());
+            
     }
 
     @Override
     public void run()
     {
+        ProcessSim currentProcess;
         while (quantum < 100)
         {
             while (!processList.isEmpty() && processList.peek().getArrivalTime() <= quantum)
@@ -55,18 +57,30 @@ public class HighestPriorityFirstPE extends SchedulingAlgorithm {
             {
                 if (!processQueue1.isEmpty())
                 {
+                    currentProcess = processQueue1.poll();
+                    currentProcess.setXArrivalTime(quantum);
+                    processQueue1.add(currentProcess);
                     executeProcess(processQueue1.peek(), 1);
                 }
                 else if (!processQueue2.isEmpty())
                 {
+                    currentProcess = processQueue2.poll();
+                    currentProcess.setXArrivalTime(quantum);
+                    processQueue2.add(currentProcess);
                     executeProcess(processQueue2.peek(), 2);
                 }
                 else if (!processQueue3.isEmpty())
                 {
+                    currentProcess = processQueue3.poll();
+                    currentProcess.setXArrivalTime(quantum);
+                    processQueue3.add(currentProcess);
                     executeProcess(processQueue3.peek(), 3);
                 }
                 else // first 3 queues are empty
                 {
+                    currentProcess = processQueue4.poll();
+                    currentProcess.setXArrivalTime(quantum);
+                    processQueue4.add(currentProcess);
                     executeProcess(processQueue4.peek(), 4);
                 }
             }
@@ -75,18 +89,30 @@ public class HighestPriorityFirstPE extends SchedulingAlgorithm {
         // execute remaining processes from all queues
         while (!processQueue1.isEmpty())
         {
+            currentProcess = processQueue1.poll();
+            currentProcess.setXArrivalTime(quantum);
+            processQueue1.add(currentProcess);
             executeProcess(processQueue1.peek(), 1);
         }
         while (!processQueue2.isEmpty())
         {
+            currentProcess = processQueue2.poll();
+            currentProcess.setXArrivalTime(quantum);
+            processQueue2.add(currentProcess);
             executeProcess(processQueue2.peek(), 2);
         }
         while (!processQueue3.isEmpty())
         {
+            currentProcess = processQueue3.poll();
+            currentProcess.setXArrivalTime(quantum);
+            processQueue3.add(currentProcess);
             executeProcess(processQueue3.peek(), 3);
         }
         while (!processQueue4.isEmpty())
         {
+            currentProcess = processQueue4.poll();
+            currentProcess.setXArrivalTime(quantum);
+            processQueue4.add(currentProcess);
             executeProcess(processQueue4.peek(), 4);
         }
     }
