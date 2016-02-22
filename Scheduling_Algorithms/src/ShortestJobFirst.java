@@ -55,8 +55,7 @@ public class ShortestJobFirst extends SchedulingAlgorithm
      */
     private void executeProcess(ProcessSim process)
     {
-        totalTurnaroundTime += (quantum - process.getArrivalTime() + process.getRunTime());
-        totalWaitTime += (quantum - process.getArrivalTime());
+        updateTimes(process);
         // run process until finished
         while (process.getRemainingRunTime() > 0)
         {
