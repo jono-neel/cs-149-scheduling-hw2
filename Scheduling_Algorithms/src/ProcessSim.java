@@ -7,10 +7,12 @@
  */
 public class ProcessSim {
 	private float arrivalTime;
-	private float runTime;
+	private float expectedRunTime;
 	private float remainingRunTime;
+        private float executionStartTime;
 	private String name;
 	private int priority;
+        private boolean readyState;
         
         /**
          * Creates empty process.
@@ -18,26 +20,30 @@ public class ProcessSim {
 	public ProcessSim()
 	{
 		arrivalTime = 0;
-		runTime = 0;
+		expectedRunTime = 0;
 		remainingRunTime = 0;
+                executionStartTime = 0;
 		priority = 0;
 		name = "null";
+                readyState = false;
 	}
         
 	/**
 	 * constructor for ProcessSim takes 4 arguments to set its fields
 	 * @param arrivalTime the time the process arrives at the CPU
-	 * @param runTime the amount of quantum the process runs for
+	 * @param expectedRunTime the amount of quantum the process runs for
 	 * @param priority the priority the process has in the priority queue
 	 * @param name the name of the process (numbered)
 	 */
 	public ProcessSim(float arrivalTime, float runTime, int priority, String name)
 	{
 		this.arrivalTime = arrivalTime;
-		this.runTime = runTime;
+		expectedRunTime = runTime;
 		remainingRunTime = runTime;
+                executionStartTime = 0;
 		this.priority = priority;
 		this.name = name;
+                readyState = false;
 	}
 	
 	public float getRemainingRunTime() {
@@ -56,11 +62,11 @@ public class ProcessSim {
 	}
 
 	public float getRunTime() {
-		return runTime;
+		return expectedRunTime;
 	}
 
 	public void setRunTime(float runTime) {
-		this.runTime = runTime;
+		this.expectedRunTime = runTime;
 	}
 
 	public String getName() {
@@ -79,8 +85,24 @@ public class ProcessSim {
 		this.priority = priority;
 	}
         
+        public float getExecutionStartTime() {
+            return executionStartTime;
+        }
+        
+        public void setExecutionStartTime(float at) {
+            executionStartTime = at;
+        }
+        
+        public boolean getReadyState() {
+            return readyState;
+        }
+        
+        public void setReadyState(boolean readyState) {
+            this.readyState = readyState;
+        }
+        
         public String toString() {
             return "Process " + name + ", AT: " + arrivalTime
-                    + ", ERT: " + runTime + ", Priority: " + priority;
+                    + ", ERT: " + expectedRunTime + ", Priority: " + priority;
         }
 }
