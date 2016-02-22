@@ -18,7 +18,6 @@ public class FirstComeFirstServe extends SchedulingAlgorithm
     public void run()
     {
         ArrayDeque<ProcessSim> processQueue = new ArrayDeque<ProcessSim>();
-        ProcessSim currentProcess;
         while(quantum < 100) //stop after 99 quantum
         {			
             while(!this.processList.isEmpty() && quantum > this.processList.peek().getArrivalTime()) 
@@ -29,14 +28,7 @@ public class FirstComeFirstServe extends SchedulingAlgorithm
 
             if(!processQueue.isEmpty()) //run the processes that have reached the cpu
             {
-                currentProcess = processQueue.remove();
-                updateTimes(currentProcess);
-                while(currentProcess.getRemainingRunTime() > 0)
-                {
-                    currentProcess.setRemainingRunTime(currentProcess.getRemainingRunTime() - 1);
-                    quantum += 1;
-                    timeChart.add(currentProcess);
-                }
+                executeProcess(processQueue.remove());
                 //quantum += currentProcess.getRunTime();
                 //throughput++;
                 //System.out.println("Quantum: " + (quantum - currentProcess.getRunTime()) + " Process: " + currentProcess.getName());
@@ -44,8 +36,8 @@ public class FirstComeFirstServe extends SchedulingAlgorithm
             }
             else
             {
-                quantum += 1;
                 timeChart.add(new ProcessSim());
+                quantum += 1;
             }
 
         }
@@ -53,14 +45,26 @@ public class FirstComeFirstServe extends SchedulingAlgorithm
         // execute remaining processes
         while(!processQueue.isEmpty())
         {
-            currentProcess = processQueue.remove();
-            updateTimes(currentProcess);
-            while(currentProcess.getRemainingRunTime() > 0)
-            {
-                currentProcess.setRemainingRunTime(currentProcess.getRemainingRunTime() - 1);
-                quantum += 1;
-                timeChart.add(currentProcess);
-            }
+            executeProcess(processQueue.remove());
         }
     }
+    
+    /**
+     * Executes process and adds to times.
+     * @param process process to execute
+     */
+    private void executeProcess(ProcessSim process)
+    {
+        process.setReadyState(true);
+        process.setExecutionStartTime(quantum);
+        totalWaitTime += (quantum - process.getArrivalTime()); 
+        // run process until finished
+        while (process.getRemainingRunTime() > 0)
+        {
+            timeChart.add(process);
+            process.setRemainingRunTime(process.getRemainingRunTime() - 1);
+            quantum += 1;
+        }
+        totalTurnaroundTime += (quantum - process.getArrivalTime());
+    }    
 }
