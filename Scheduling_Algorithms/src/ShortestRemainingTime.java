@@ -27,7 +27,7 @@ public class ShortestRemainingTime extends SchedulingAlgorithm
                 processQueue.add(processList.pop());
             }
             
-            // execute current process
+            // execute current process until finished
             if(!processQueue.isEmpty())
             {
                 executeProcess(processQueue.peek());
@@ -55,6 +55,7 @@ public class ShortestRemainingTime extends SchedulingAlgorithm
     {
         timeChart.add(process);
         // check if process has been started before
+        boolean originalState = process.getReadyState();
         if (!process.getReadyState())
         {
             process.setReadyState(true);
@@ -62,6 +63,18 @@ public class ShortestRemainingTime extends SchedulingAlgorithm
         }
         
         process.setRemainingRunTime(process.getRemainingRunTime() - 1);
+        
+        // first time executing and finishes in 1 quantum
+        if(!originalState && process.getRemainingRunTime() <= 0)
+        {
+            totalResponseTime += (quantum - process.getArrivalTime());
+        }
+        // needs more than 1 quantum to finish
+        else
+        {
+            totalResponseTime += (quantum + 1 - process.getArrivalTime());
+        }
+        
         // check if process finished
         if(process.getRemainingRunTime() <= 0)
         {
