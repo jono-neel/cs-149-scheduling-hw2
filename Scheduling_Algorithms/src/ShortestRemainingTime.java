@@ -27,7 +27,7 @@ public class ShortestRemainingTime extends SchedulingAlgorithm
                 processQueue.add(processList.pop());
             }
             
-            // execute current process until finished
+            // execute current process
             if(!processQueue.isEmpty())
             {
                 executeProcess(processQueue.peek());
