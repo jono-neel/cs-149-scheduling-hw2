@@ -34,6 +34,16 @@ public abstract class SchedulingAlgorithm
     public abstract void run();
     
     /**
+     * Updates time when process executes.
+     * @param process process executing
+     */
+    protected void updateTimes(ProcessSim process)
+    {
+        totalTurnaroundTime += (quantum - process.getArrivalTime() + process.getRunTime());
+        totalWaitTime += (quantum - process.getArrivalTime());   
+    }
+    
+    /**
      * Prints algorithm run outputs.
      * Turnaround Time = wait time + run time
      * Wait Time = arrival time + time when execution begins
