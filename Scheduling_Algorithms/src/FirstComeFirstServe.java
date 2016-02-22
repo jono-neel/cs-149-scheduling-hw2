@@ -1,5 +1,4 @@
 import java.util.ArrayDeque;
-import java.util.ArrayList;
 
 /**
  * First Come First Serve algorithm simply runs processes to completion as they reach the CPU
@@ -8,25 +7,22 @@ import java.util.ArrayList;
  * @author Jonathan Neel
  *
  */
-public class FirstComeFirstServe implements SchedulingAlgorithm{
-	private float quantum;
-	public FirstComeFirstServe()
+public class FirstComeFirstServe extends SchedulingAlgorithm{
+	public FirstComeFirstServe(ArrayDeque<ProcessSim> list)
 	{
-		quantum = 0;
+            super(list);
 	}
 	@Override
-	public void run(ArrayList<ProcessSim> list) {
-		int processToAdd = 0;
+	public void run() {
 		ArrayDeque<ProcessSim> processQueue = new ArrayDeque<ProcessSim>();
 		int throughput = 0;
 		while(quantum < 100) //stop after 99 quantum
 		{
 			
-			while(quantum > list.get(processToAdd).getArrivalTime()) 
+			while(!processList.isEmpty() && quantum > processList.peek().getArrivalTime()) 
 				//when the scheduler reaches the next arrival time of the processes
 			{
-				processQueue.add(list.get(processToAdd)); //put the next process into the queue
-				processToAdd++; //iterate to the next index in the ArrayList
+				processQueue.add(processList.pop()); //put the next process into the queue
 			}
 			if(processQueue.isEmpty()) //idle if there are no more processes entering the queue
 			{
