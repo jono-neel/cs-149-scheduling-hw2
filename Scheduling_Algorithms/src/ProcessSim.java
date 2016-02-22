@@ -9,7 +9,6 @@ public class ProcessSim {
 	private float arrivalTime;
 	private float expectedRunTime;
 	private float remainingRunTime;
-        private float executionStartTime;
 	private String name;
 	private int priority;
         private boolean readyState;
@@ -22,7 +21,6 @@ public class ProcessSim {
 		arrivalTime = 0;
 		expectedRunTime = 0;
 		remainingRunTime = 0;
-                executionStartTime = 0;
 		priority = 0;
 		name = "null";
                 readyState = false;
@@ -40,7 +38,6 @@ public class ProcessSim {
 		this.arrivalTime = arrivalTime;
 		expectedRunTime = runTime;
 		remainingRunTime = runTime;
-                executionStartTime = 0;
 		this.priority = priority;
 		this.name = name;
                 readyState = false;
@@ -84,15 +81,7 @@ public class ProcessSim {
 	public void setPriority(int priority) {
 		this.priority = priority;
 	}
-        
-        public float getExecutionStartTime() {
-            return executionStartTime;
-        }
-        
-        public void setExecutionStartTime(float at) {
-            executionStartTime = at;
-        }
-        
+
         public boolean getReadyState() {
             return readyState;
         }
