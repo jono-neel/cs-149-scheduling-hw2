@@ -9,8 +9,36 @@ public class ProcessSim {
 	private float arrivalTime;
 	private float runTime;
 	private float remainingRunTime;
-	private int name;
+	private String name;
 	private int priority;
+        
+        /**
+         * Creates empty process.
+         */
+	public ProcessSim()
+	{
+		arrivalTime = 0;
+		runTime = 0;
+		remainingRunTime = 0;
+		priority = 0;
+		name = "null";
+	}
+        
+	/**
+	 * constructor for ProcessSim takes 4 arguments to set its fields
+	 * @param arrivalTime the time the process arrives at the CPU
+	 * @param runTime the amount of quantum the process runs for
+	 * @param priority the priority the process has in the priority queue
+	 * @param name the name of the process (numbered)
+	 */
+	public ProcessSim(float arrivalTime, float runTime, int priority, String name)
+	{
+		this.arrivalTime = arrivalTime;
+		this.runTime = runTime;
+		remainingRunTime = runTime;
+		this.priority = priority;
+		this.name = name;
+	}
 	
 	public float getRemainingRunTime() {
 		return remainingRunTime;
@@ -35,11 +63,11 @@ public class ProcessSim {
 		this.runTime = runTime;
 	}
 
-	public int getName() {
+	public String getName() {
 		return name;
 	}
 
-	public void setName(int name) {
+	public void setName(String name) {
 		this.name = name;
 	}
 
@@ -50,21 +78,9 @@ public class ProcessSim {
 	public void setPriority(int priority) {
 		this.priority = priority;
 	}
-	/**
-	 * constructor for ProcessSim takes 4 arguments to set its fields
-	 * @param arrivalTime the time the process arrives at the CPU
-	 * @param runTime the amount of quantum the process runs for
-	 * @param priority the priority the process has in the piroity queue
-	 * @param name the name of the process (numbered)
-	 */
-	public ProcessSim(float arrivalTime, float runTime, int priority, int name)
-	{
-		this.arrivalTime = arrivalTime;
-		this.runTime = runTime;
-		remainingRunTime = runTime;
-		this.priority = priority;
-		this.name = name;
-	}
-	
-	
+        
+        public String toString() {
+            return "Process " + name + ", AT: " + arrivalTime
+                    + ", ERT: " + runTime + ", Priority: " + priority;
+        }
 }
