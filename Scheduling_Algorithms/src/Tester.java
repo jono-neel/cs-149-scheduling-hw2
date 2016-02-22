@@ -31,10 +31,16 @@ public class Tester {
         //HPFTest.run
         
         // print results
+        System.out.println("+==========Start First Come First Serve Algorithm Test Run 1==========+");
         FCFSTest.printRun();
+        System.out.println("+======================End FCFS Test Run 1============================+\n");
+        System.out.println("+==========Start Shortest Job First Algorithm Test Run 1==========+");
         SJFTest.printRun();
+        System.out.println("+======================End SJF Test Run 1============================+\n");
         //SJFTest.printRun();
+        System.out.println("+==========Start Round Robin Algorithm Test Run 1==========+");
         RRTest.printRun();
+        System.out.println("+======================End Round Robin Test Run 1============================+\n");
         //HPFTest.printRun();
     }
     
