@@ -17,9 +17,7 @@ public class ShortestJobFirst extends SchedulingAlgorithm
     }
     
     public void run()
-    {
-        ProcessSim currentProcess;
-        
+    {        
         // run for 100 time slices
         while (quantum < 100)
         {
@@ -55,7 +53,9 @@ public class ShortestJobFirst extends SchedulingAlgorithm
      */
     private void executeProcess(ProcessSim process)
     {
-        updateTimes(process);
+        process.setReadyState(true);
+        process.setExecutionStartTime(quantum);
+        totalWaitTime += (quantum - process.getArrivalTime()); 
         // run process until finished
         while (process.getRemainingRunTime() > 0)
         {
@@ -63,5 +63,6 @@ public class ShortestJobFirst extends SchedulingAlgorithm
             process.setRemainingRunTime(process.getRemainingRunTime() - 1);
             quantum += 1;
         }
+        totalTurnaroundTime += (quantum - process.getArrivalTime());
     }
 }
