@@ -32,7 +32,7 @@ public class Tester {
         
         // print results
         FCFSTest.printRun();
-        SJFTest.printRun()
+        SJFTest.printRun();
         //SJFTest.printRun();
         RRTest.printRun();
         //HPFTest.printRun();
