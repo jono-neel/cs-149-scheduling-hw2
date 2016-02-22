@@ -16,6 +16,7 @@ public abstract class SchedulingAlgorithm
     protected ArrayDeque<ProcessSim> processList;
     protected ArrayDeque<ProcessSim> processListClone;
     protected ArrayList<ProcessSim> timeChart;
+    protected static final int TIME_SLICES = 100;
     
     /**
      * Creates a scheduling algorithm with list of simulated processes.
@@ -33,19 +34,10 @@ public abstract class SchedulingAlgorithm
      */
     public abstract void run();
     
-    /**
-     * Updates time when process executes.
-     * @param process process executing
-     */
-    protected void updateTimes(ProcessSim process)
-    {
-        totalTurnaroundTime += (quantum - process.getArrivalTime() + process.getRunTime());
-        totalWaitTime += (quantum - process.getArrivalTime());   
-    }
     
     /**
      * Prints algorithm run outputs.
-     * Turnaround Time = wait time + run time
+     * Turnaround Time = wait time + execution time
      * Wait Time = arrival time + time when execution begins
      * Response Time = ?
      * Throughput = number of jobs / total time
@@ -80,5 +72,6 @@ public abstract class SchedulingAlgorithm
                 + totalResponseTime / processListClone.size());
         System.out.println("Throuhput: "
                 + processListClone.size() / quantum);
+        System.out.println();
     }
 }
