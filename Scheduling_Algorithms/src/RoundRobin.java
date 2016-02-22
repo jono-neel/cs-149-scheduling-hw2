@@ -1,14 +1,13 @@
 import java.util.ArrayDeque;
 
 
-public class RoundRobin 
+public class RoundRobin extends SchedulingAlgorithm
 {
 	ArrayDeque<ProcessSim> inProgress = new ArrayDeque<ProcessSim>();
-	ArrayDeque<ProcessSim> processList = new ArrayDeque<ProcessSim>();
-	float quantum = 0;
+        
 	public RoundRobin(ArrayDeque<ProcessSim> pl)
 	{
-		processList = pl;
+            super(pl);
 	}
 	/**
 	 * In run, first check if the first item in the processList has arrived yet. If so, remove from processList
