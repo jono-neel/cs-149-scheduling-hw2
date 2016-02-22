@@ -85,7 +85,6 @@ public class RoundRobin extends SchedulingAlgorithm
      */
     private void executeProcess(ProcessSim process)
     {
-        process = processQueue.peek();
         timeChart.add(process);
         // check if process has been started before
         if (!process.getReadyState())
