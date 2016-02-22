@@ -9,21 +9,18 @@ import java.util.Random;
  *
  */
 public class Tester {
-    private static ArrayDeque<ProcessSim> processQueue = new ArrayDeque<ProcessSim>();
     private static final int NUM_OF_PROCESSES = 50;
     private static final int MAX_ARRIVAL_TIME = 99;
     private static final int MAX_RUN_TIME = 10;
     private static final int MAX_PRIORITY = 4;
     
     public static void main(String[] args)
-    {
-        initializeProcesses();
-        
+    {        
         // instantiate scheduling algorithms
-        FirstComeFirstServe FCFSTest = new FirstComeFirstServe(processQueue.clone());
-        ShortestJobFirst SJFTest = new ShortestJobFirst(processQueue.clone());
+        FirstComeFirstServe FCFSTest = new FirstComeFirstServe(generateProcessQueue());
+        ShortestJobFirst SJFTest = new ShortestJobFirst(generateProcessQueue());
         //ShortestRemainingTime SRTTest = new ShortestRemainingTime(processQueue.clone());
-        RoundRobin RRTest = new RoundRobin(processQueue.clone());
+        RoundRobin RRTest = new RoundRobin(generateProcessQueue());
         // HighestPriorityFirst HPFTest = new HighestPriorityFirst(processQueue.clone());
         
         // run scheduling algorithms
@@ -43,10 +40,13 @@ public class Tester {
     
     /**
      * Generates processes with random values.
+     * Currently uses same seed for debugging purposes.
+     * @return process queue sorted by arrival time
      */
-    public static void initializeProcesses()
+    public static ArrayDeque<ProcessSim> generateProcessQueue()
     {
         ArrayList<ProcessSim> listByArrivals = new ArrayList<>();
+        ArrayDeque<ProcessSim> processQueue = new ArrayDeque<>();
         
         Random rando = new Random(10);
         for(int i = 0; i < NUM_OF_PROCESSES; i++) //populate the list with randomly valued proceses
@@ -68,5 +68,6 @@ public class Tester {
                 System.out.println("Priority: " + p.getPriority() + "\n");
                 processQueue.add(p);
         }
+        return processQueue;
     }
 }
