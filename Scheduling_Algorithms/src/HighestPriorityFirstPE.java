@@ -1,7 +1,7 @@
 import java.util.ArrayDeque;
 import java.util.PriorityQueue;
 
-public class HighestPriorityFirst extends SchedulingAlgorithm {
+public class HighestPriorityFirstPE extends SchedulingAlgorithm {
 
 	private PriorityQueue<ProcessSim> processQueue1, processQueue2, processQueue3, processQueue4;
 
