@@ -69,10 +69,10 @@ public class Tester {
         Collections.sort(listByArrivals, new ArrivalComparator()); //put the list in order of arrival times
         for(ProcessSim p : listByArrivals)
         {
-                System.out.println(p);
+                //System.out.println(p);
                 processQueue.add(p);
         }
-        System.out.println();
+        //System.out.println();
         return processQueue;
     }
 }
