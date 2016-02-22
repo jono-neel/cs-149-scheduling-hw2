@@ -39,7 +39,7 @@ public abstract class SchedulingAlgorithm
      * Prints algorithm run outputs.
      * Turnaround Time = execution end time - arrival time
      * Wait Time = execution begin time - arrival time
-     * Response Time = ?
+     * Response Time = first response - arrival time
      * Throughput = number of jobs / total time
      */
     protected void printRun()
