@@ -63,5 +63,6 @@ public class ShortestJobFirst extends SchedulingAlgorithm
             quantum += 1;
         }
         totalTurnaroundTime += (quantum - process.getArrivalTime());
+        totalResponseTime += (quantum - process.getArrivalTime());
     }
 }
