@@ -21,14 +21,16 @@ public class Tester {
         ShortestJobFirst SJFTest = new ShortestJobFirst(generateProcessQueue());
         ShortestRemainingTime SRTTest = new ShortestRemainingTime(generateProcessQueue());
         RoundRobin RRTest = new RoundRobin(generateProcessQueue());
-        // HighestPriorityFirst HPFTest = new HighestPriorityFirst(generateProcessQueue());
+        HighestPriorityFirstPE HPFPETest = new HighestPriorityFirstPE(generateProcessQueue());
+        //HighestPriorityFirstNPE HPFNPETest = new HighestPriorityFirstNPE(generateProcessQueue());
         
         // run scheduling algorithms
         FCFSTest.run();
         SJFTest.run();
         SRTTest.run();
         RRTest.run();
-        //HPFTest.run();
+        HPFPETest.run();
+        //HPFNPETest.run();
         
         // print results
         System.out.println("+==========Start First Come First Serve Algorithm Test Run 1==========+");
@@ -40,10 +42,14 @@ public class Tester {
         System.out.println("+=========Start Shortest Remaining Time Algorithm Test Run 1==========+");
         SRTTest.printRun();
         System.out.println("+======================End SRT Test Run 1===========================+\n");
-        System.out.println("+==========Start Round Robin Algorithm Test Run 1==========+");
+        System.out.println("+===============Start Round Robin Algorithm Test Run 1================+");
         RRTest.printRun();
-        System.out.println("+======================End Round Robin Test Run 1============================+\n");
-        //HPFTest.printRun();
+        System.out.println("+==================End Round Robin Test Run 1=======================+\n");
+        System.out.println("+============Start Highest Priority First (PE) Test Run 1=============+");
+        HPFPETest.printRun();
+        System.out.println("+==============End Highest Priority First (PE) Test Run 1=============+");
+        // HPFNPETest.printRun();
+
     }
     
     /**
