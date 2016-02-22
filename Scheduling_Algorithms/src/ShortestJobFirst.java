@@ -32,7 +32,7 @@ public class ShortestJobFirst extends SchedulingAlgorithm
             // execute current process until finished
             if(!processQueue.isEmpty())
             {
-                executeProcess(processQueue.peek());
+                executeProcess(processQueue.poll());
             }
             // CPU idle, no process in executing
             else
@@ -45,7 +45,7 @@ public class ShortestJobFirst extends SchedulingAlgorithm
         // execute remaining processes
         while (!processQueue.isEmpty())
         {
-            executeProcess(processQueue.peek());
+            executeProcess(processQueue.poll());
         }
     }
     
@@ -63,6 +63,5 @@ public class ShortestJobFirst extends SchedulingAlgorithm
             quantum += 1;
             timeChart.add(process);
         }
-        processQueue.poll();
     }
 }
