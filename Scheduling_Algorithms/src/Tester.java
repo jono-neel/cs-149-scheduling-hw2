@@ -15,7 +15,7 @@ public class Tester {
     private static final int MAX_PRIORITY = 4;
     
     public static void main(String[] args)
-    {        
+    {
         // instantiate scheduling algorithms
         FirstComeFirstServe FCFSTest = new FirstComeFirstServe(generateProcessQueue());
         ShortestJobFirst SJFTest = new ShortestJobFirst(generateProcessQueue());
@@ -54,7 +54,8 @@ public class Tester {
             ProcessSim p = new ProcessSim(
                     rando.nextFloat() * MAX_ARRIVAL_TIME,
                     rando.nextFloat() * MAX_RUN_TIME, 
-                    (rando.nextInt(MAX_PRIORITY)  + 1), "Process " + i);
+                    (rando.nextInt(MAX_PRIORITY)  + 1), 
+                    Integer.toString(i));
             listByArrivals.add(p);
         }
         //Collections.sort(listByArrivals, new PriorityComparator());
@@ -62,12 +63,10 @@ public class Tester {
         Collections.sort(listByArrivals, new ArrivalComparator()); //put the list in order of arrival times
         for(ProcessSim p : listByArrivals)
         {
-                System.out.println(p.getName());
-                System.out.println("Arrival time: " + p.getArrivalTime());
-                System.out.println("Runtime: " + p.getRunTime());
-                System.out.println("Priority: " + p.getPriority() + "\n");
+                System.out.println(p);
                 processQueue.add(p);
         }
+        System.out.println();
         return processQueue;
     }
 }
