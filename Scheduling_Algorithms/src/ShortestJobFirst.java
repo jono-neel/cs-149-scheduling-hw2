@@ -8,61 +8,62 @@ import java.util.PriorityQueue;
  */
 public class ShortestJobFirst extends SchedulingAlgorithm
 {
-    private PriorityQueue<ProcessSim> inProgress;
+    private PriorityQueue<ProcessSim> processQueue;
     
     public ShortestJobFirst(ArrayDeque<ProcessSim> list)
     {
         super(list);
-        inProgress = new PriorityQueue<ProcessSim>(new RunTimeComparator());
+        processQueue = new PriorityQueue<ProcessSim>(new RunTimeComparator());
     }
     
     public void run()
     {
         ProcessSim currentProcess;
         
-        System.out.print("During 100 quantum: ");
+        // run for 100 time slices
         while (quantum < 100)
         {
             // add new processes
             while (!processList.isEmpty() && processList.peek().getArrivalTime() <= quantum)
             {
-                inProgress.add(processList.pop());
+                processQueue.add(processList.pop());
             }
             
-            // execute current process until done
-            if(!inProgress.isEmpty())
+            // execute current process until finished
+            if(!processQueue.isEmpty())
             {
-                currentProcess = inProgress.peek();
-                totalTurnaroundTime += (quantum - currentProcess.getArrivalTime() + currentProcess.getRunTime());
-                totalWaitTime += (quantum - currentProcess.getArrivalTime());
-                totalResponseTime += (quantum - currentProcess.getArrivalTime());
-                while (currentProcess.getRemainingRunTime() > 0)
-                {
-                    currentProcess.setRemainingRunTime(currentProcess.getRemainingRunTime() - 1);
-                    quantum += 1;
-                }
-                System.out.print("[Q:" + quantum + ", P:" + inProgress.poll().getName() + "] ");
+                executeProcess(processQueue.peek());
             }
-            // CPU idle, no process in progress
+            // CPU idle, no process in executing
             else
             {
+                timeChart.add(new ProcessSim());
                 quantum += 1;
             }
         }
         
         // execute remaining processes
-        System.out.print("\nAfter 100 quantum: ");
-        while (!inProgress.isEmpty())
+        while (!processQueue.isEmpty())
         {
-            currentProcess = inProgress.peek();
-            totalTurnaroundTime += (quantum - currentProcess.getArrivalTime() + currentProcess.getRunTime());
-            totalWaitTime += (quantum - currentProcess.getArrivalTime());
-            while (currentProcess.getRemainingRunTime() > 0)
-            {
-                currentProcess.setRemainingRunTime(currentProcess.getRemainingRunTime() - 1);
-                quantum += 1;
-            }
-            System.out.print("[Q:" + quantum + ", P:" + inProgress.poll().getName() + "] ");
+            executeProcess(processQueue.peek());
         }
+    }
+    
+    /**
+     * Executes process and adds to times.
+     * @param process process to execute
+     */
+    private void executeProcess(ProcessSim process)
+    {
+        totalTurnaroundTime += (quantum - process.getArrivalTime() + process.getRunTime());
+        totalWaitTime += (quantum - process.getArrivalTime());
+        // run process until finished
+        while (process.getRemainingRunTime() > 0)
+        {
+            process.setRemainingRunTime(process.getRemainingRunTime() - 1);
+            quantum += 1;
+            timeChart.add(process);
+        }
+        processQueue.poll();
     }
 }
