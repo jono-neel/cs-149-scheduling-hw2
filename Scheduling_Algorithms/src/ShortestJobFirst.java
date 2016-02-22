@@ -6,27 +6,20 @@ import java.util.PriorityQueue;
  * Shortest job first algorithm schedules by shortest run time (non-preemptive).
  * @author Katherine Soohoo
  */
-public class ShortestJobFirst
+public class ShortestJobFirst extends SchedulingAlgorithm
 {
-    private float quantum;
-    ArrayDeque<ProcessSim> processList;
-    PriorityQueue<ProcessSim> inProgress;
+    private PriorityQueue<ProcessSim> inProgress;
     
     public ShortestJobFirst(ArrayDeque<ProcessSim> list)
     {
-        quantum = 0;
-        processList = list;
+        super(list);
         inProgress = new PriorityQueue<ProcessSim>(new RunTimeComparator());
-        for (ProcessSim p : processList)
-        {
-            System.out.print(p.getName() + " ");
-        }
-        System.out.println();
     }
     
     public void run()
     {
         ProcessSim currentProcess;
+        
         System.out.print("During 100 quantum: ");
         while (quantum < 100)
         {
@@ -40,6 +33,9 @@ public class ShortestJobFirst
             if(!inProgress.isEmpty())
             {
                 currentProcess = inProgress.peek();
+                totalTurnaroundTime += (quantum - currentProcess.getArrivalTime() + currentProcess.getRunTime());
+                totalWaitTime += (quantum - currentProcess.getArrivalTime());
+                totalResponseTime += (quantum - currentProcess.getArrivalTime());
                 while (currentProcess.getRemainingRunTime() > 0)
                 {
                     currentProcess.setRemainingRunTime(currentProcess.getRemainingRunTime() - 1);
@@ -59,6 +55,8 @@ public class ShortestJobFirst
         while (!inProgress.isEmpty())
         {
             currentProcess = inProgress.peek();
+            totalTurnaroundTime += (quantum - currentProcess.getArrivalTime() + currentProcess.getRunTime());
+            totalWaitTime += (quantum - currentProcess.getArrivalTime());
             while (currentProcess.getRemainingRunTime() > 0)
             {
                 currentProcess.setRemainingRunTime(currentProcess.getRemainingRunTime() - 1);
