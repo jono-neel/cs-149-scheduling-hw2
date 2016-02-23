@@ -2,7 +2,6 @@ import java.util.ArrayDeque;
 
 /**
  * First Come First Serve algorithm simply runs processes to completion as they reach the CPU
- * test comment
  *
  * @author Jonathan Neel
  *
@@ -18,7 +17,7 @@ public class FirstComeFirstServe extends SchedulingAlgorithm
     public void run()
     {
         ArrayDeque<ProcessSim> processQueue = new ArrayDeque<ProcessSim>();
-        while(quantum < 100.0) //stop after 99 quantum
+        while(quantum < MAX_TIME_SLICES)
         {			
             while(!this.processList.isEmpty() && quantum > this.processList.peek().getArrivalTime()) 
                 //when the scheduler reaches the next arrival time of the processes
@@ -35,7 +34,6 @@ public class FirstComeFirstServe extends SchedulingAlgorithm
                 timeChart.add(new ProcessSim());
                 quantum += 1;
             }
-
         }
         
         // execute remaining processes
@@ -51,33 +49,26 @@ public class FirstComeFirstServe extends SchedulingAlgorithm
      */
     private void executeProcess(ProcessSim process)
     {
-        boolean originalState = process.getReadyState();
         process.setReadyState(true);
-        totalWaitTime += (quantum - process.getArrivalTime()); 
-        
-       
+        process.setArrivedQuantum(quantum);
         // run process until finished
         while (process.getRemainingRunTime() > 0)
         {
             timeChart.add(process);
             process.setRemainingRunTime(process.getRemainingRunTime() - 1);
             quantum += 1;
-            // first time executing and finishes in 1 quantum
-            if(!originalState && process.getRemainingRunTime() <= 0)
-            {
-               totalResponseTime += process.getRunTime();
-               originalState = true;
-            }
-           // needs more than 1 quantum to finish
-            else if (!originalState && process.getRemainingRunTime() > 0)
-            {
-                totalResponseTime += 1;
-                originalState = true;
-            }
         }
-        totalFinishedProcesses++;
+        // add times after process finish executing
+        if (process.getRunTime() <= 1)
+        {
+            totalResponseTime += process.getRunTime();
+        }
+        else if (process.getRunTime() > 1)
+        {
+            totalResponseTime += 1;
+        }
         totalTurnaroundTime += (quantum - process.getArrivalTime());
-
-        //totalResponseTime += (quantum - process.getArrivalTime());
+        totalWaitTime += (process.getArrivedQuantum() - process.getArrivalTime());
+        totalFinishedProcesses++;
     }    
 }
