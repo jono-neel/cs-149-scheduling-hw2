@@ -91,7 +91,31 @@ public class Tester {
     	}
     	printAndResetAveragedMetrics(averagedMetrics);
 
-                        
+        // extra credit, uncomment to run
+//        for(int i= 0; i < 5; i++){
+//            AgingHighestPriorityFirstPE AHPFPETest = new AgingHighestPriorityFirstPE(generateProcessQueue(i));
+//            AHPFPETest.run();
+//            System.out.println("+==========Start Aging Highest Priority First (PE) Test Run " + (i + 1) + "==========+");
+//            AHPFPETest.printRun();
+//            System.out.println("***********End Aging Highest Priority First (PE) Test Run " + (i + 1) + "***********\n");
+//    		averagedMetrics[0] += AHPFPETest.averageTurnaroundTime;
+//    		averagedMetrics[1] += AHPFPETest.averageResponseTime;
+//    		averagedMetrics[2] += AHPFPETest.averageWaitTime;
+//    		averagedMetrics[3] += AHPFPETest.throughput;
+//    	}
+//    	printAndResetAveragedMetrics(averagedMetrics);
+//        for(int i= 0; i < 5; i++){
+//        AgingHighestPriorityFirstNPE AHPFNPETest = new AgingHighestPriorityFirstNPE(generateProcessQueue(i));
+//        AHPFNPETest.run();
+//    	System.out.println("+==========Start Aging Highest Priority First (NPE) Test Run " + (i + 1) + "========+");
+//        AHPFNPETest.printRun();
+//    	System.out.println("***********End Aging Highest Priority First (NPE) Test Run " + (i + 1) + "***********");
+//    	averagedMetrics[0] += AHPFNPETest.averageTurnaroundTime;
+//		averagedMetrics[1] += AHPFNPETest.averageResponseTime;
+//		averagedMetrics[2] += AHPFNPETest.averageWaitTime;
+//		averagedMetrics[3] += AHPFNPETest.throughput;
+//    	}
+//    	printAndResetAveragedMetrics(averagedMetrics);
     }
     
     /**
