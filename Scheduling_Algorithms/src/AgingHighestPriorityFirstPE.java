@@ -8,7 +8,7 @@ import java.util.PriorityQueue;
  */
 public class AgingHighestPriorityFirstPE extends SchedulingAlgorithm {
 
-    private int MAX_PRIORITY = 4;
+    private int MAX_PRIORITY = 3;
     private PriorityQueue<ProcessSim> processQueue1, processQueue2, processQueue3, processQueue4;
     private ArrayList<PriorityQueue<ProcessSim>> queueList;
 
@@ -178,8 +178,10 @@ public class AgingHighestPriorityFirstPE extends SchedulingAlgorithm {
     {
         //System.out.println("START INC PRI");
         //Increase priority if a process waited for 5 quantum.
-        for(int i = 0; i < 0; i++){
-            for(ProcessSim ps : queueList.get(i + 1))
+        ArrayList<ProcessSim> temp = new ArrayList<>();
+        for(int i = 0; i < MAX_PRIORITY; i++){
+            PriorityQueue<ProcessSim> tem = queueList.get(i + 1);
+            for(ProcessSim ps : temp)
             {
                 if(ps.getWaitedQuantum() >= 5){
                     ps.increasePriority();
@@ -187,18 +189,18 @@ public class AgingHighestPriorityFirstPE extends SchedulingAlgorithm {
                     queueList.get(i).add(ps);
                 }
             }
-        }
+        }        
     }
     
     private void increaseWaitedQuantum()
     {
         //System.out.println("START INC WAITEDQUANTUM");
-        for(int i = 0; i < 0; i++){
-            for(ProcessSim ps : queueList.get(i + 1))
-            {
+        ArrayList<ProcessSim> temp = new ArrayList<>();
+        for(int i = 0; i < MAX_PRIORITY; i++){
+            PriorityQueue<ProcessSim> tem = queueList.get(i + 1);
+            for(ProcessSim ps : temp){
                 ps.increaseWaitedQuantum();
             }
-        }
-    
+        } 
     }
 }
