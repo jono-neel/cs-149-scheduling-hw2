@@ -1,5 +1,9 @@
 import java.util.ArrayDeque;
 
+/**
+ * Round robin schedules first come first serve with process switching (preemptive)
+ * @author Matthew Montero
+ */
 public class RoundRobin extends SchedulingAlgorithm
 {
     ArrayDeque<ProcessSim> processQueue = new ArrayDeque<ProcessSim>();
@@ -14,25 +18,23 @@ public class RoundRobin extends SchedulingAlgorithm
      */
     public void run()
     {
-        //ProcessSim currentProcess;
-        while(quantum < 100)
+        while(quantum < MAX_TIME_SLICES)
         {
-            //System.out.println("processList.peek().getArrivalTime : " + processList.peek().getArrivalTime());
             while(!processList.isEmpty() && processList.peek().getArrivalTime() <= quantum)
             {
                 processQueue.add(processList.pop());
-
             }
+            // cpu idle
             if(processQueue.isEmpty())
             {
                 timeChart.add(new ProcessSim());
                 quantum += 1;
             }
+            // execute process
             else
             {			
                 processQueue.add(processQueue.pop()); // move front process to end of queue
                 executeProcess(processQueue.peek());
-                
             }
         }
         
@@ -51,37 +53,32 @@ public class RoundRobin extends SchedulingAlgorithm
     private void executeProcess(ProcessSim process)
     {
         timeChart.add(process);
-        // check if process has been started before
-        boolean originalState = process.getReadyState();
+        // set arrived quantum for first visit
         if (!process.getReadyState())
         {
             process.setReadyState(true);
-            totalWaitTime += (quantum - process.getArrivalTime());
-            //totalResponseTime += (quantum + 1 - process.getArrivalTime());
+            process.setArrivedQuantum(quantum);
         }
-
+        // subtract from remaining run time
         process.setRemainingRunTime(process.getRemainingRunTime() - 1);
-        
-                // first time executing and finishes in 1 quantum
-        if(!originalState && process.getRemainingRunTime() <= 0)
-       {
-           totalResponseTime += process.getRunTime();
-       }
-       // needs more than 1 quantum to finish
-       else if (!originalState && process.getRemainingRunTime() > 0)
-       {
-           totalResponseTime += 1;
-
-       }
         // check if process finished
         if(process.getRemainingRunTime() <= 0)
         {
+            // add times
+            if (process.getRunTime() <= 1)
+            {
+                totalResponseTime += process.getRunTime();
+            }
+            else if (process.getRunTime() > 1)
+            {
+                totalResponseTime += 1;
+            }
             totalTurnaroundTime += (quantum - process.getArrivalTime());
-            processQueue.pop();
+            totalWaitTime += (process.getArrivedQuantum() - process.getArrivalTime());
             totalFinishedProcesses++;
+            // remove from process queue
+            processQueue.pop();
         }
-        
-        quantum += 1;
-        
-        }
+        quantum += 1; 
+    }
 }
