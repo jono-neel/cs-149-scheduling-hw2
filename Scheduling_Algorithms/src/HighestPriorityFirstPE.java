@@ -2,7 +2,7 @@ import java.util.ArrayDeque;
 import java.util.PriorityQueue;
 
 /**
- * Highest priority first (preemptive)
+ * Highest priority first schedules by highest priority (preemptive).
  */
 public class HighestPriorityFirstPE extends SchedulingAlgorithm {
 
@@ -15,14 +15,13 @@ public class HighestPriorityFirstPE extends SchedulingAlgorithm {
             processQueue2 = new PriorityQueue<>(new XArrivalComparator());
             processQueue3 = new PriorityQueue<>(new XArrivalComparator());
             processQueue4 = new PriorityQueue<>(new XArrivalComparator());
-            
     }
 
     @Override
     public void run()
     {
         ProcessSim currentProcess;
-        while (quantum < 100)
+        while (quantum < MAX_TIME_SLICES)
         {
             while (!processList.isEmpty() && processList.peek().getArrivalTime() <= quantum)
             {
@@ -60,28 +59,28 @@ public class HighestPriorityFirstPE extends SchedulingAlgorithm {
                     currentProcess = processQueue1.poll();
                     currentProcess.setXArrivalTime(quantum);
                     processQueue1.add(currentProcess);
-                    executeProcess(processQueue1.peek(), 1);
+                    executeProcess(processQueue1.peek());
                 }
                 else if (!processQueue2.isEmpty())
                 {
                     currentProcess = processQueue2.poll();
                     currentProcess.setXArrivalTime(quantum);
                     processQueue2.add(currentProcess);
-                    executeProcess(processQueue2.peek(), 2);
+                    executeProcess(processQueue2.peek());
                 }
                 else if (!processQueue3.isEmpty())
                 {
                     currentProcess = processQueue3.poll();
                     currentProcess.setXArrivalTime(quantum);
                     processQueue3.add(currentProcess);
-                    executeProcess(processQueue3.peek(), 3);
+                    executeProcess(processQueue3.peek());
                 }
                 else // first 3 queues are empty
                 {
                     currentProcess = processQueue4.poll();
                     currentProcess.setXArrivalTime(quantum);
                     processQueue4.add(currentProcess);
-                    executeProcess(processQueue4.peek(), 4);
+                    executeProcess(processQueue4.peek());
                 }
             }
         }
@@ -92,79 +91,79 @@ public class HighestPriorityFirstPE extends SchedulingAlgorithm {
             currentProcess = processQueue1.poll();
             currentProcess.setXArrivalTime(quantum);
             processQueue1.add(currentProcess);
-            executeProcess(processQueue1.peek(), 1);
+            executeProcess(processQueue1.peek());
         }
         while (!processQueue2.isEmpty() && quantum < 100)
         {
             currentProcess = processQueue2.poll();
             currentProcess.setXArrivalTime(quantum);
             processQueue2.add(currentProcess);
-            executeProcess(processQueue2.peek(), 2);
+            executeProcess(processQueue2.peek());
         }
         while (!processQueue3.isEmpty() && quantum < 100)
         {
             currentProcess = processQueue3.poll();
             currentProcess.setXArrivalTime(quantum);
             processQueue3.add(currentProcess);
-            executeProcess(processQueue3.peek(), 3);
+            executeProcess(processQueue3.peek());
         }
         while (!processQueue4.isEmpty() && quantum < 100)
         {
             currentProcess = processQueue4.poll();
             currentProcess.setXArrivalTime(quantum);
             processQueue4.add(currentProcess);
-            executeProcess(processQueue4.peek(), 4);
+            executeProcess(processQueue4.peek());
         }
     }
-
-    private void executeProcess(ProcessSim process, int queueNum)
+    
+    /**
+     * Executes process and adds to times.
+     * @param process process to execute
+     */
+    private void executeProcess(ProcessSim process)
     {
         timeChart.add(process);
-        // check if process has been started before
-        boolean originalState = process.getReadyState();
+        // set arrived quantum for first visit
         if (!process.getReadyState())
         {
             process.setReadyState(true);
-            totalWaitTime += (quantum - process.getArrivalTime());
+            process.setArrivedQuantum(quantum);
         }
-
+        // subtract from remaining run time
         process.setRemainingRunTime(process.getRemainingRunTime() - 1);
-        
-        // first time executing and finishes in 1 quantum
-        if(!originalState && process.getRemainingRunTime() <= 0)
-        {
-            totalResponseTime += process.getRunTime();
-        }
-        // needs more than 1 quantum to finish
-       else if (!originalState && process.getRemainingRunTime() > 0)
-        {
-            totalResponseTime += 1;
-        }
-            
         // check if process finished
-        if (process.getRemainingRunTime() <= 0)
+        if(process.getRemainingRunTime() <= 0)
         {
+            // add times
+            if (process.getRunTime() <= 1)
+            {
+                totalResponseTime += process.getRunTime();
+            }
+            else if (process.getRunTime() > 1)
+            {
+                totalResponseTime += 1;
+            }
             totalTurnaroundTime += (quantum - process.getArrivalTime());
-            // remove from process queue
-            if (queueNum == 1)
+            totalWaitTime += (process.getArrivedQuantum() - process.getArrivalTime());
+            totalFinishedProcesses++;
+           // remove from process queue
+            if (process.getPriority() == 1)
             {
                 processQueue1.poll();
             }
-            else if (queueNum == 2)
+            else if (process.getPriority() == 2)
             {
                 processQueue2.poll();
             }
-            else if (queueNum == 3)
+            else if (process.getPriority() == 3)
             {
                 processQueue3.poll();
             }
-            else // queueNum == 4
+            else // priority is 4
             {
                 processQueue4.poll();
             }
         }
-
         quantum += 1;
-        totalFinishedProcesses++;
     }
 }
