@@ -18,7 +18,7 @@ public class RoundRobin extends SchedulingAlgorithm
         while(quantum < 100)
         {
             //System.out.println("processList.peek().getArrivalTime : " + processList.peek().getArrivalTime());
-            if(!processList.isEmpty() && processList.peek().getArrivalTime() <= quantum)
+            while(!processList.isEmpty() && processList.peek().getArrivalTime() <= quantum)
             {
                 processQueue.add(processList.pop());
 
