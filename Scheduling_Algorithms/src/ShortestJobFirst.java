@@ -18,8 +18,7 @@ public class ShortestJobFirst extends SchedulingAlgorithm
     
     public void run()
     {        
-        // run for 100 time slices
-        while (quantum < 100)
+        while (quantum < MAX_TIME_SLICES)
         {
             // add new processes
             while (!processList.isEmpty() && processList.peek().getArrivalTime() <= quantum)
@@ -53,29 +52,26 @@ public class ShortestJobFirst extends SchedulingAlgorithm
      */
     private void executeProcess(ProcessSim process)
     {
-        boolean originalState = process.getReadyState();
         process.setReadyState(true);
-        totalWaitTime += (quantum - process.getArrivalTime()); 
+        process.setArrivedQuantum(quantum);
         // run process until finished
         while (process.getRemainingRunTime() > 0)
         {
             timeChart.add(process);
             process.setRemainingRunTime(process.getRemainingRunTime() - 1);
             quantum += 1;
-            // first time executing and finishes in 1 quantum
-            if(!originalState && process.getRemainingRunTime() <= 0)
-            {
-               totalResponseTime += process.getRunTime();
-               originalState = true;
-            }
-           // needs more than 1 quantum to finish
-            else if (!originalState && process.getRemainingRunTime() > 0)
-            {
-                totalResponseTime += 1;
-                originalState = true;
-            }
+        }
+        // add times after process finish executing
+        if (process.getRunTime() <= 1)
+        {
+            totalResponseTime += process.getRunTime();
+        }
+        else if (process.getRunTime() > 1)
+        {
+            totalResponseTime += 1;
         }
         totalTurnaroundTime += (quantum - process.getArrivalTime());
+        totalWaitTime += (process.getArrivedQuantum() - process.getArrivalTime());
         totalFinishedProcesses++;
     }
 }
