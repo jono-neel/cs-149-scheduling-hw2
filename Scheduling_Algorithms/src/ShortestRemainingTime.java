@@ -41,7 +41,7 @@ public class ShortestRemainingTime extends SchedulingAlgorithm
         }
         
         // execute remaining processes
-        while (!processQueue.isEmpty())
+        while (!processQueue.isEmpty() && quantum < 100)
         {
             executeProcess(processQueue.peek());
         }
@@ -80,6 +80,7 @@ public class ShortestRemainingTime extends SchedulingAlgorithm
         {
             totalTurnaroundTime += (quantum - process.getArrivalTime());
             processQueue.poll();
+            totalFinishedProcesses++;
         }
         else
         {

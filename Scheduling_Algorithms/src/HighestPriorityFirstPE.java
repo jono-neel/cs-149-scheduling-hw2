@@ -87,28 +87,28 @@ public class HighestPriorityFirstPE extends SchedulingAlgorithm {
         }
         
         // execute remaining processes from all queues
-        while (!processQueue1.isEmpty())
+        while (!processQueue1.isEmpty() && quantum < 100)
         {
             currentProcess = processQueue1.poll();
             currentProcess.setXArrivalTime(quantum);
             processQueue1.add(currentProcess);
             executeProcess(processQueue1.peek(), 1);
         }
-        while (!processQueue2.isEmpty())
+        while (!processQueue2.isEmpty() && quantum < 100)
         {
             currentProcess = processQueue2.poll();
             currentProcess.setXArrivalTime(quantum);
             processQueue2.add(currentProcess);
             executeProcess(processQueue2.peek(), 2);
         }
-        while (!processQueue3.isEmpty())
+        while (!processQueue3.isEmpty() && quantum < 100)
         {
             currentProcess = processQueue3.poll();
             currentProcess.setXArrivalTime(quantum);
             processQueue3.add(currentProcess);
             executeProcess(processQueue3.peek(), 3);
         }
-        while (!processQueue4.isEmpty())
+        while (!processQueue4.isEmpty() && quantum < 100)
         {
             currentProcess = processQueue4.poll();
             currentProcess.setXArrivalTime(quantum);
@@ -165,5 +165,6 @@ public class HighestPriorityFirstPE extends SchedulingAlgorithm {
         }
 
         quantum += 1;
+        totalFinishedProcesses++;
     }
 }

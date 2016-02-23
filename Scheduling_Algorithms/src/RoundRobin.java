@@ -27,52 +27,17 @@ public class RoundRobin extends SchedulingAlgorithm
             {
                 timeChart.add(new ProcessSim());
                 quantum += 1;
-                //System.out.println(quantum);
             }
             else
             {			
                 processQueue.add(processQueue.pop()); // move front process to end of queue
                 executeProcess(processQueue.peek());
-                /*System.out.println("Process: " + processQueue.peek().getName());
-                System.out.println("	Starting Quantum: " + quantum);
-                System.out.println(" 	Arrival Time    : " + processQueue.peek().getArrivalTime());
-                System.out.println("	Estimated Time  : " + processQueue.peek().getRunTime());
-                System.out.println("	Remaining Time before quantum: " + processQueue.peek().getRemainingRunTime());
-                // move process to end of queue
-                processQueue.add(processQueue.pop());
                 
-                currentProcess = processQueue.peek();
-                timeChart.add(currentProcess);
-                if (!currentProcess.getReadyState())
-                {
-                    currentProcess.setReadyState(true);
-                    currentProcess.setExecutionStartTime(quantum);
-                    totalWaitTime += (quantum - currentProcess.getArrivalTime());
-                }
-
-                currentProcess.setRemainingRunTime(currentProcess.getRemainingRunTime() - 1);
-                //System.out.println("	Remaining Time after quantum : " + processQueue.peek().getRemainingRunTime());
-
-                if(currentProcess.getRemainingRunTime() <= 0)
-                {
-                    totalTurnaroundTime += (quantum - currentProcess.getArrivalTime());
-                    processQueue.pop();
-                    //System.out.println("				Process: " + processQueue.peek().getName() + " complete...");
-                    //quantum += processQueue.pop().getRemainingRunTime();
-                }
-                else
-                {
-                    processQueue.add(processQueue.pop());
-                }
-                quantum += 1;
-
-                //System.out.println("	Ending Quantum  : " + quantum);*/
-
             }
         }
         
         // executing remaining processes
-        while (!processQueue.isEmpty())
+        while (!processQueue.isEmpty() && quantum < 100)
         {
             processQueue.add(processQueue.pop());
             executeProcess(processQueue.peek());
@@ -103,7 +68,7 @@ public class RoundRobin extends SchedulingAlgorithm
             totalResponseTime += (quantum - process.getArrivalTime());
         }
         // needs more than 1 quantum to finish
-        else
+        else if(process.getRemainingRunTime() > 0 && !originalState)
         {
             totalResponseTime += (quantum + 1 - process.getArrivalTime());
         }
@@ -113,8 +78,10 @@ public class RoundRobin extends SchedulingAlgorithm
         {
             totalTurnaroundTime += (quantum - process.getArrivalTime());
             processQueue.pop();
+            totalFinishedProcesses++;
         }
         
-        quantum += 1;    
-    }
+        quantum += 1;
+        
+        }
 }

@@ -41,7 +41,7 @@ public class ShortestJobFirst extends SchedulingAlgorithm
         }
         
         // execute remaining processes
-        while (!processQueue.isEmpty())
+        while (!processQueue.isEmpty() && quantum < 100)
         {
             executeProcess(processQueue.poll());
         }
@@ -64,5 +64,6 @@ public class ShortestJobFirst extends SchedulingAlgorithm
         }
         totalTurnaroundTime += (quantum - process.getArrivalTime());
         totalResponseTime += (quantum - process.getArrivalTime());
+        totalFinishedProcesses++;
     }
 }

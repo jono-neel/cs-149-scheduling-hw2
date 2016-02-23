@@ -13,6 +13,11 @@ public abstract class SchedulingAlgorithm
     protected float totalTurnaroundTime = 0;
     protected float totalWaitTime = 0;
     protected float totalResponseTime = 0;
+    protected int totalFinishedProcesses = 0;
+    protected float averageTurnaroundTime = 0;
+    protected float averageResponseTime = 0;
+    protected float averageWaitTime = 0;
+    protected float throughput = 0;
     protected ArrayDeque<ProcessSim> processList;
     protected ArrayDeque<ProcessSim> processListClone;
     protected ArrayList<ProcessSim> timeChart;
@@ -64,14 +69,19 @@ public abstract class SchedulingAlgorithm
         System.out.println("]");
         
         // statistics
+        averageTurnaroundTime = totalTurnaroundTime / totalFinishedProcesses;
+        averageResponseTime = totalResponseTime / totalFinishedProcesses;
+        averageWaitTime = totalWaitTime / totalFinishedProcesses;
+        throughput = totalFinishedProcesses / quantum;
+        System.out.println("Quantums: " + timeChart.size());
         System.out.println("Average Turnaround Time: "
-                + totalTurnaroundTime / processListClone.size());
+                + averageTurnaroundTime);
         System.out.println("Average Wait Time: "
-                + totalWaitTime / processListClone.size());
+                + averageWaitTime);
         System.out.println("Average Response Time: "
-                + totalResponseTime / processListClone.size());
+                + averageResponseTime);
         System.out.println("Throuhput: "
-                + processListClone.size() / quantum);
+                + throughput);
         System.out.println();
     }
 }

@@ -18,7 +18,7 @@ public class FirstComeFirstServe extends SchedulingAlgorithm
     public void run()
     {
         ArrayDeque<ProcessSim> processQueue = new ArrayDeque<ProcessSim>();
-        while(quantum < 100) //stop after 99 quantum
+        while(quantum < 100.0) //stop after 99 quantum
         {			
             while(!this.processList.isEmpty() && quantum > this.processList.peek().getArrivalTime()) 
                 //when the scheduler reaches the next arrival time of the processes
@@ -28,11 +28,7 @@ public class FirstComeFirstServe extends SchedulingAlgorithm
 
             if(!processQueue.isEmpty()) //run the processes that have reached the cpu
             {
-                executeProcess(processQueue.remove());
-                //quantum += currentProcess.getRunTime();
-                //throughput++;
-                //System.out.println("Quantum: " + (quantum - currentProcess.getRunTime()) + " Process: " + currentProcess.getName());
-                //if(quantum > 99) break;
+                executeProcess(processQueue.remove());                
             }
             else
             {
@@ -43,7 +39,7 @@ public class FirstComeFirstServe extends SchedulingAlgorithm
         }
         
         // execute remaining processes
-        while(!processQueue.isEmpty())
+        while(!processQueue.isEmpty() && quantum < 100.0)
         {
             executeProcess(processQueue.remove());
         }
@@ -64,6 +60,7 @@ public class FirstComeFirstServe extends SchedulingAlgorithm
             process.setRemainingRunTime(process.getRemainingRunTime() - 1);
             quantum += 1;
         }
+        totalFinishedProcesses++;
         totalTurnaroundTime += (quantum - process.getArrivalTime());
         totalResponseTime += (quantum - process.getArrivalTime());
     }    
