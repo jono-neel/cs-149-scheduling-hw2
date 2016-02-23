@@ -18,8 +18,7 @@ public class ShortestRemainingTime extends SchedulingAlgorithm
     
     public void run()
     {        
-        // run for 100 time slices
-        while (quantum < 100)
+        while (quantum < MAX_TIME_SLICES)
         {
             // add new processes
             while (!processList.isEmpty() && processList.peek().getArrivalTime() <= quantum)
@@ -54,40 +53,36 @@ public class ShortestRemainingTime extends SchedulingAlgorithm
     private void executeProcess(ProcessSim process)
     {
         timeChart.add(process);
-        // check if process has been started before
+        // set arrived quantum for first visit
         boolean originalState = process.getReadyState();
         if (!process.getReadyState())
         {
             process.setReadyState(true);
-            totalWaitTime += (quantum - process.getArrivalTime());
+            process.setArrivedQuantum(quantum);
         }
-        
+        // subtract from remaining run time
         process.setRemainingRunTime(process.getRemainingRunTime() - 1);
-        
-        if(!originalState && process.getRemainingRunTime() <= 0)
-        {
-            totalResponseTime += process.getRunTime();
-        }
-        // needs more than 1 quantum to finish
-        else if (!originalState && process.getRemainingRunTime() > 0)
-        {
-            totalResponseTime += 1;
-
-        }
-        
         // check if process finished
         if(process.getRemainingRunTime() <= 0)
         {
+            // add times
+            if (process.getRunTime() <= 1)
+            {
+                totalResponseTime += process.getRunTime();
+            }
+            else if (process.getRunTime() > 1)
+            {
+                totalResponseTime += 1;
+            }
             totalTurnaroundTime += (quantum - process.getArrivalTime());
-            processQueue.poll();
+            totalWaitTime += (process.getArrivedQuantum() - process.getArrivalTime());
             totalFinishedProcesses++;
+            processQueue.poll();
         }
-        else
+        else // readd to process queue with new remaining time to sort
         {
-            // readd with new remaining time to sort
             processQueue.add(processQueue.poll());
         }
-        
         quantum += 1;   
     }
 }
