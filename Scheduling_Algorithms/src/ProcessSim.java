@@ -13,6 +13,8 @@ public class ProcessSim {
 	private int priority;
         private boolean readyState;
         private float xArrivalTime;
+        private int waitedQuantum;
+        private float arrivedQuantum;
         
         /**
          * Creates empty process.
@@ -26,6 +28,8 @@ public class ProcessSim {
 		priority = 0;
 		name = "null";
                 readyState = false;
+                waitedQuantum = 0;
+                arrivedQuantum = 0;
 	}
         
 	/**
@@ -44,6 +48,8 @@ public class ProcessSim {
 		this.priority = priority;
 		this.name = name;
                 readyState = false;
+                waitedQuantum = 0;
+                arrivedQuantum = 0;
 	}
 	
 	public float getRemainingRunTime() {
@@ -101,6 +107,29 @@ public class ProcessSim {
                 this.xArrivalTime = xArrivalTime;
         }
         
+        public float getWaitedQuantum() {
+                return waitedQuantum;
+        }
+
+        public void increaseWaitedQuantum(){
+            waitedQuantum++; 
+        }
+        
+        public void increasePriority(){
+            if(priority > 1)
+                priority--;
+            waitedQuantum = 0;
+        }
+        
+        public float getArrivedQuantum() {
+                return arrivedQuantum;
+        }
+
+        public void setArrivedQuantum(float arrivedQuantum) {
+                this.arrivedQuantum = arrivedQuantum;
+        }
+        
+        @Override
         public String toString() {
             return "Process " + name + ", AT: " + arrivalTime
                     + ", ERT: " + expectedRunTime + ", Priority: " + priority;
