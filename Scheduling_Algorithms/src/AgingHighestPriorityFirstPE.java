@@ -63,7 +63,7 @@ public class AgingHighestPriorityFirstPE extends SchedulingAlgorithm {
             // execute process
             else
             {
-                increasePriority();
+                
                 if (!processQueue1.isEmpty())
                 {
                     currentProcess = processQueue1.poll();
@@ -93,6 +93,7 @@ public class AgingHighestPriorityFirstPE extends SchedulingAlgorithm {
                     executeProcess(processQueue4.peek());
                 }   
             }
+            increasePriority();
             increaseWaitedQuantum();
         }
         
@@ -179,20 +180,26 @@ public class AgingHighestPriorityFirstPE extends SchedulingAlgorithm {
         //System.out.println("START INC PRI");
         //Increase priority if a process waited for 5 quantum.
         ArrayList<ProcessSim> temp = new ArrayList<>();
-        ProcessSim ps;
+        //ProcessSim ps;
         for(int i = 0; i < MAX_PRIORITY; i++){
-            PriorityQueue<ProcessSim> tem = queueList.get(i + 1);
-            int size = tem.size();
-            while(size-- > 0)
-            {
-                ps = tem.poll();
+            PriorityQueue<ProcessSim> tem = new PriorityQueue<>(new XArrivalComparator());
+            PriorityQueue<ProcessSim> tem2 = queueList.get(i);
+            for(ProcessSim ps : queueList.get(i + 1))
+                temp.add(ps);
+            
+            for(ProcessSim ps: temp)
+            {  
                 if(ps.getWaitedQuantum() >= 5){
                     ps.increasePriority();
+                    tem2.add(ps);
                 }
-                temp.add(ps);
+                else{
+                    //temp.add(ps);
+                    queueList.get(i + 1).remove(ps);
+                }
             }
-            for(ProcessSim pss: temp)
-                tem.add(pss);
+//            for(ProcessSim pss: temp)
+//                tem.add(pss);
         }        
     }
     
@@ -200,18 +207,14 @@ public class AgingHighestPriorityFirstPE extends SchedulingAlgorithm {
     {
         //System.out.println("START INC WAITEDQUANTUM");
         ArrayList<ProcessSim> temp = new ArrayList<>();
-        ProcessSim ps;
+        //ProcessSim ps;
         for(int i = 0; i < MAX_PRIORITY; i++){
             PriorityQueue<ProcessSim> tem = queueList.get(i + 1);
-            int size = tem.size();
-            while(size-- > 0)
+            for(ProcessSim ps: tem)
             {
-                ps = tem.poll();
                 ps.increaseWaitedQuantum();
-                temp.add(ps);
             }
-            for(ProcessSim pss: temp)
-                tem.add(pss);
-        } 
+            
+        }
     }
 }
