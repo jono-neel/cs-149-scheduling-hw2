@@ -64,15 +64,15 @@ public class ShortestRemainingTime extends SchedulingAlgorithm
         
         process.setRemainingRunTime(process.getRemainingRunTime() - 1);
         
-        // first time executing and finishes in 1 quantum
         if(!originalState && process.getRemainingRunTime() <= 0)
         {
-            totalResponseTime += (quantum - process.getArrivalTime());
+            totalResponseTime += process.getRunTime();
         }
         // needs more than 1 quantum to finish
-        else
+        else if (!originalState && process.getRemainingRunTime() > 0)
         {
-            totalResponseTime += (quantum + 1 - process.getArrivalTime());
+            totalResponseTime += 1;
+
         }
         
         // check if process finished

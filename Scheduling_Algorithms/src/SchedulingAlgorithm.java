@@ -50,11 +50,11 @@ public abstract class SchedulingAlgorithm
     protected void printRun()
     {
         // processes created
-        System.out.println("Processes Created:" );
-        for (ProcessSim ps : processListClone)
-        {
-            System.out.println(ps);
-        }
+//        System.out.println("Processes Created:" );
+//        for (ProcessSim ps : processListClone)
+//        {
+//            System.out.println(ps);
+//        }
         
         // time chart
         System.out.print("Time Chart: [");

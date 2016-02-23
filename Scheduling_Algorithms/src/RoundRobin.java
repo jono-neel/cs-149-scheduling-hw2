@@ -57,22 +57,22 @@ public class RoundRobin extends SchedulingAlgorithm
         {
             process.setReadyState(true);
             totalWaitTime += (quantum - process.getArrivalTime());
-            totalResponseTime += (quantum + 1 - process.getArrivalTime());
+            //totalResponseTime += (quantum + 1 - process.getArrivalTime());
         }
 
         process.setRemainingRunTime(process.getRemainingRunTime() - 1);
         
                 // first time executing and finishes in 1 quantum
         if(!originalState && process.getRemainingRunTime() <= 0)
-        {
-            totalResponseTime += (quantum - process.getArrivalTime());
-        }
-        // needs more than 1 quantum to finish
-        else if(process.getRemainingRunTime() > 0 && !originalState)
-        {
-            totalResponseTime += (quantum + 1 - process.getArrivalTime());
-        }
-        
+       {
+           totalResponseTime += process.getRunTime();
+       }
+       // needs more than 1 quantum to finish
+       else if (!originalState && process.getRemainingRunTime() > 0)
+       {
+           totalResponseTime += 1;
+
+       }
         // check if process finished
         if(process.getRemainingRunTime() <= 0)
         {

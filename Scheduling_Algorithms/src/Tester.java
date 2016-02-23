@@ -103,7 +103,7 @@ public class Tester {
     			+ averagedMetrics[0] +"\nAverage Response Time: " 
     			+ averagedMetrics[1] +"\nAverage Wait Time: " 
     			+ averagedMetrics[2] +"\nAverage throughput: " 
-    			+ averagedMetrics[3] + "\n||||||||||||||||||||||||||||||||||||||||||||||||||");
+    			+ averagedMetrics[3] + "\n||||||||||||||||||||||||||||||||||||||||||||||||||\n");
     	for(int i = 0; i < 4; i++)
     	{
     		averagedMetrics[i] = 0;
