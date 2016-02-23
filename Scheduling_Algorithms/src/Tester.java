@@ -78,21 +78,26 @@ public class Tester {
     		averagedMetrics[3] += HPFPETest.throughput;
     	}
     	printAndResetAveragedMetrics(averagedMetrics);
-//    	for(int i= 0; i < 5; i++){
-//        HighestPriorityFirstNPE HPFNPETest = new HighestPriorityFirstNPE(generateProcessQueue());
-//        HPFNPETest.run();
-//    	System.out.println("+==========Start Highest Priority First (NPE) Test Run " + (i + 1) + "==============+");
-//        HPFNPETest.printRun();
-//    	System.out.println("***********End Highest Priority First (NPE) Test Run " + (i + 1) + "*****************");
-//    	averagedMetrics[0] += HPFNPETest.averageTurnaroundTime;
-//		averagedMetrics[1] += HPFNPETest.averageResponseTime;
-//		averagedMetrics[2] += HPFNPETest.averageWaitTime;
-//		averagedMetrics[3] += HPFNPETest.throughput;
-//    	}
-//    	printAndResetAveragedMetrics(averagedMetrics);
+    	for(int i= 0; i < 5; i++){
+        HighestPriorityFirstNPE HPFNPETest = new HighestPriorityFirstNPE(generateProcessQueue(i));
+        HPFNPETest.run();
+    	System.out.println("+==========Start Highest Priority First (NPE) Test Run " + (i + 1) + "==============+");
+        HPFNPETest.printRun();
+    	System.out.println("***********End Highest Priority First (NPE) Test Run " + (i + 1) + "*****************");
+    	averagedMetrics[0] += HPFNPETest.averageTurnaroundTime;
+		averagedMetrics[1] += HPFNPETest.averageResponseTime;
+		averagedMetrics[2] += HPFNPETest.averageWaitTime;
+		averagedMetrics[3] += HPFNPETest.throughput;
+    	}
+    	printAndResetAveragedMetrics(averagedMetrics);
 
                         
     }
+    
+    /**
+     * Prints total average and resets array.
+     * @param averagedMetrics array of metrics
+     */
     public static void printAndResetAveragedMetrics(float[] averagedMetrics)
     {
     	for(int i = 0; i < 4; i++)
@@ -100,15 +105,16 @@ public class Tester {
     		averagedMetrics[i] = averagedMetrics[i] / 5;
     	}
     	System.out.println("|||||||||||||||| Average of 5 runs |||||||||||||||\nAverage Turnaround Time: " 
-    			+ averagedMetrics[0] +"\nAverage Response Time: " 
-    			+ averagedMetrics[1] +"\nAverage Wait Time: " 
-    			+ averagedMetrics[2] +"\nAverage throughput: " 
+    			+ averagedMetrics[0] +"\nAverage Wait Time: " 
+    			+ averagedMetrics[2] +"\nAverage Response Time: " 
+    			+ averagedMetrics[1] +"\nAverage Throughput: " 
     			+ averagedMetrics[3] + "\n||||||||||||||||||||||||||||||||||||||||||||||||||\n");
     	for(int i = 0; i < 4; i++)
     	{
     		averagedMetrics[i] = 0;
     	}
     }
+    
     /**
      * Generates processes with random values.
      * Currently uses same seed for debugging purposes.
@@ -129,15 +135,11 @@ public class Tester {
                     Integer.toString(i));
             listByArrivals.add(p);
         }
-        //Collections.sort(listByArrivals, new PriorityComparator());
-        //Collections.sort(listByArrivals, new RunTimeComparator());
         Collections.sort(listByArrivals, new ArrivalComparator()); //put the list in order of arrival times
         for(ProcessSim p : listByArrivals)
         {
-                //System.out.println(p);
                 processQueue.add(p);
         }
-        //System.out.println();
         return processQueue;
     }
 }
