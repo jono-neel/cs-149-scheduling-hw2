@@ -21,7 +21,7 @@ public abstract class SchedulingAlgorithm
     protected ArrayDeque<ProcessSim> processList;
     protected ArrayDeque<ProcessSim> processListClone;
     protected ArrayList<ProcessSim> timeChart;
-    protected static final int TIME_SLICES = 100;
+    protected static final int MAX_TIME_SLICES = 100;
     
     /**
      * Creates a scheduling algorithm with list of simulated processes.
@@ -35,10 +35,9 @@ public abstract class SchedulingAlgorithm
     }
     
     /**
-     * Runs scheduler.
+     * Runs scheduler for set amount of time slices.
      */
     public abstract void run();
-    
     
     /**
      * Prints algorithm run outputs.
@@ -74,6 +73,7 @@ public abstract class SchedulingAlgorithm
         averageWaitTime = totalWaitTime / totalFinishedProcesses;
         throughput = totalFinishedProcesses / quantum;
         System.out.println("Quantums: " + timeChart.size());
+        System.out.println("Processes Completed: " + totalFinishedProcesses);
         System.out.println("Average Turnaround Time: "
                 + averageTurnaroundTime);
         System.out.println("Average Wait Time: "
