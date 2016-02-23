@@ -51,17 +51,33 @@ public class FirstComeFirstServe extends SchedulingAlgorithm
      */
     private void executeProcess(ProcessSim process)
     {
+        boolean originalState = process.getReadyState();
         process.setReadyState(true);
         totalWaitTime += (quantum - process.getArrivalTime()); 
+        
+       
         // run process until finished
         while (process.getRemainingRunTime() > 0)
         {
             timeChart.add(process);
             process.setRemainingRunTime(process.getRemainingRunTime() - 1);
             quantum += 1;
+            // first time executing and finishes in 1 quantum
+            if(!originalState && process.getRemainingRunTime() <= 0)
+            {
+               totalResponseTime += process.getRunTime();
+               originalState = true;
+            }
+           // needs more than 1 quantum to finish
+            else if (!originalState && process.getRemainingRunTime() > 0)
+            {
+                totalResponseTime += 1;
+                originalState = true;
+            }
         }
         totalFinishedProcesses++;
         totalTurnaroundTime += (quantum - process.getArrivalTime());
-        totalResponseTime += (quantum - process.getArrivalTime());
+
+        //totalResponseTime += (quantum - process.getArrivalTime());
     }    
 }
