@@ -99,21 +99,47 @@ public class HighestPriorityFirstNPE extends SchedulingAlgorithm {
     {
         process.setReadyState(true);
         process.setArrivedQuantum(quantum);
+        float enteredQuanta = quantum;
+        System.out.println("Quantum: " + quantum  + " Arr time: " + process.getArrivalTime());
         // run process until finished
         while (process.getRemainingRunTime() > 0)
         {
             timeChart.add(process);
             process.setRemainingRunTime(process.getRemainingRunTime() - 1);
             quantum += 1;
+            if(quantum > 99)
+                break;
         }
         // add times after process finish executing
-        if (process.getRunTime() <= 1)
+        float resTime = 0.f;
+        if(process.getArrivalTime() < enteredQuanta)
         {
-            totalResponseTime += process.getRunTime();
+            
+            if (process.getRunTime() <= 1)
+            {
+                resTime = enteredQuanta - process.getArrivalTime() + process.getRunTime();
+                totalResponseTime += resTime;
+            }
+            else
+            {
+                resTime = enteredQuanta - process.getArrivalTime() + 1;
+                totalResponseTime += resTime;
+            }
+            process.setResponseTime(resTime);
         }
-        else if (process.getRunTime() > 1)
+        else
         {
-            totalResponseTime += 1;
+            if (process.getRunTime() <= 1)
+            {
+                resTime = process.getRunTime();
+                totalResponseTime += resTime;
+            }
+            else if (process.getRunTime() > 1)
+            {
+                resTime = 1f;
+                totalResponseTime += resTime;
+            }
+            process.setResponseTime(resTime);
         }
         totalTurnaroundTime += (quantum - process.getArrivalTime());
         totalWaitTime += (process.getArrivedQuantum() - process.getArrivalTime());
