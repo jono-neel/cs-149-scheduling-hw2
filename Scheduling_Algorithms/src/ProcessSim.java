@@ -15,7 +15,7 @@ public class ProcessSim {
         private float xArrivalTime;
         private int waitedQuantum;
         private float arrivedQuantum;
-        
+        private float responseTime;
         /**
          * Creates empty process.
          */
@@ -30,6 +30,7 @@ public class ProcessSim {
                 readyState = false;
                 waitedQuantum = 0;
                 arrivedQuantum = 0;
+                responseTime = 0.f;
 	}
         
 	/**
@@ -50,6 +51,7 @@ public class ProcessSim {
                 readyState = false;
                 waitedQuantum = 0;
                 arrivedQuantum = 0;
+                responseTime = 0.f;
 	}
 	
 	public float getRemainingRunTime() {
@@ -129,9 +131,15 @@ public class ProcessSim {
                 this.arrivedQuantum = arrivedQuantum;
         }
         
+        public void setResponseTime(float f)
+        {
+            responseTime = f;
+        }
+        
         @Override
         public String toString() {
             return "Process " + name + ", AT: " + arrivalTime
-                    + ", ERT: " + expectedRunTime + ", Priority: " + priority;
+                    + ", ERT: " + expectedRunTime + ", Priority: " + priority + 
+                    " Res Time: " + responseTime; 
         }
 }
