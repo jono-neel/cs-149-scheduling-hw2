@@ -111,36 +111,18 @@ public class HighestPriorityFirstNPE extends SchedulingAlgorithm {
                 break;
         }
         // add times after process finish executing
-        float resTime = 0.f;
-        if(process.getArrivalTime() < enteredQuanta)
+        float resTime = 0.f;    
+        if (process.getRunTime() <= 1)
         {
-            
-            if (process.getRunTime() <= 1)
-            {
-                resTime = enteredQuanta - process.getArrivalTime() + process.getRunTime();
-                totalResponseTime += resTime;
-            }
-            else
-            {
-                resTime = enteredQuanta - process.getArrivalTime() + 1;
-                totalResponseTime += resTime;
-            }
-            process.setResponseTime(resTime);
+            resTime = enteredQuanta - process.getArrivalTime() + process.getRunTime();
         }
         else
         {
-            if (process.getRunTime() <= 1)
-            {
-                resTime = process.getRunTime();
-                totalResponseTime += resTime;
-            }
-            else if (process.getRunTime() > 1)
-            {
-                resTime = 1f;
-                totalResponseTime += resTime;
-            }
-            process.setResponseTime(resTime);
+            resTime = enteredQuanta - process.getArrivalTime() + 1;
         }
+        totalResponseTime += resTime;
+        process.setResponseTime(resTime);
+        
         totalTurnaroundTime += (quantum - process.getArrivalTime());
         totalWaitTime += (process.getArrivedQuantum() - process.getArrivalTime());
         totalFinishedProcesses++;
