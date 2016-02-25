@@ -106,25 +106,37 @@ public class AgingHighestPriorityFirstNPE extends SchedulingAlgorithm {
     {
         process.setReadyState(true);
         process.setArrivedQuantum(quantum);
+        float enteredQuanta = quantum;
+        System.out.println("Quantum: " + quantum  + " Arr time: " + process.getArrivalTime());
         // run process until finished
         while (process.getRemainingRunTime() > 0)
         {
             timeChart.add(process);
             process.setRemainingRunTime(process.getRemainingRunTime() - 1);
             quantum += 1;
+            if(quantum > 99)
+                break;
         }
         // add times after process finish executing
-        if (process.getRunTime() <= 1)
+        float resTime = 0.f;
+        if(process.getRemainingRunTime() <= 0)
         {
-            totalResponseTime += process.getRunTime();
+            if (process.getRunTime() <= 1)
+            {
+                resTime = enteredQuanta - process.getArrivalTime() + process.getRunTime();
+            }
+            else
+            {
+                resTime = enteredQuanta - process.getArrivalTime() + 1;
+            }
+            
+            totalResponseTime += resTime;
+            process.setResponseTime(resTime);
+            totalTurnaroundTime += (quantum - process.getArrivalTime());
+            totalWaitTime += (process.getArrivedQuantum() - process.getArrivalTime());
+            totalFinishedProcesses++;
         }
-        else if (process.getRunTime() > 1)
-        {
-            totalResponseTime += 1;
-        }
-        totalTurnaroundTime += (quantum - process.getArrivalTime());
-        totalWaitTime += (process.getArrivedQuantum() - process.getArrivalTime());
-        totalFinishedProcesses++;
+        
     }
     
     private void increasePriority()
