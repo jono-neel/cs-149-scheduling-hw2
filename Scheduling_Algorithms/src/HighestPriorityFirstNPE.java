@@ -100,7 +100,7 @@ public class HighestPriorityFirstNPE extends SchedulingAlgorithm {
         process.setReadyState(true);
         process.setArrivedQuantum(quantum);
         float enteredQuanta = quantum;
-        System.out.println("Quantum: " + quantum  + " Arr time: " + process.getArrivalTime());
+        //System.out.println("Quantum: " + quantum  + " Arr time: " + process.getArrivalTime());
         // run process until finished
         while (process.getRemainingRunTime() > 0)
         {
