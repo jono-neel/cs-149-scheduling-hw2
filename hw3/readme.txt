@@ -7,5 +7,5 @@ INSTALLING GNU C/C++ COMPILER ON LINUX
 https://help.ubuntu.com/community/InstallingCompilers
 
 RUN ON LINUX VIA TERMINAL
-compile: g++ -pthreads main.cpp
+compile: g++ -pthreads main.cpp or compile: g++ -pthreads main.cpp -w (-w will ignore warnings)
 run: ./a.out
