@@ -2,6 +2,7 @@ HW3 README
 
 TODO
 -generate N customers from command line
+-(Matthew)medium-ticket seats need to go 5, 6, 4, 7, 3, 8, 2, 9, 1 (middle, down, up, donw, up,...)
 -proper print out
 -complete sales in progress even after 1 minute
 -EC: customer leaves after 10 seconds
