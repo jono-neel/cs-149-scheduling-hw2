@@ -1,5 +1,11 @@
 HW3 README
 
+TODO
+-generate N customers from command line
+-proper print out
+-complete sales in progress even after 1 minute
+-EC: customer leaves after 10 seconds
+
 Need to have C++ compiler installed on computer.
 Suggest to compile and run on Linux via terminal.
 
