@@ -5,27 +5,29 @@
 #include <cstdlib>
 #include <pthread.h>
 #include <unistd.h>
-
+#include <sstream> // for stringstream
+// GLOBAL CONSTANTS
 #define CHART_SIZE 100
-#define NUM_CUSTOMERS 10
 #define NUM_SELLERS 10
 #define MIN_H_RANGE 1
 #define MAX_H_RANGE 2
 #define MAX_M_RANGE 4
 #define MAX_L_RANGE 7
-
+// NAMESPACE
 using namespace std;
-enum SellerType { H = 72, M = 77, L = 76 };
+// GLOBAL VARIABLES
+enum SellerType { H = 72, M = 77, L = 76 }; // ascii code
 int times = 0;
 bool SHOULD_EXIST =  true;
 pthread_mutex_t mutexx;
 SellerType types[10] = {H, M, M, M, L, L, L, L, L, L};
 int ids[10] = {1, 1, 2, 3, 1, 2, 3, 4, 5, 6};
-
+int num_customers = 0;
+// FORWARD DECLARATIONS
 class Seller;
 class Seat;
 class SeatManager;
-
+// CLASS DECLARATIONS BEGIN------------------------------------------
 class Customer
 {
     private:
@@ -33,7 +35,6 @@ class Customer
         Seller *seller;
         SellerType type;
         int seatLocation;
-
     public:
         Customer();
         Customer(Seller *s);
@@ -46,13 +47,11 @@ class Customer
         void setSeatLocation(int n);
 };
 
-
 class Seat
 {
     private:
         bool isAvailable;
         Customer *customer;
-
     public:
         Seat();
 
@@ -71,7 +70,7 @@ class Seller
         SellerType type;
         vector<Customer *> customerQueue;
         SeatManager *sm;
-
+        int total_customers;
     public:
         Seller();
         Seller(int n, SellerType t, SeatManager *s);
@@ -101,7 +100,8 @@ class SeatManager
         void print();
         bool isFull();
 };
-
+// CLASS DECLARATIONS END--------------------------------------------
+// CLASS DEFINITIONS BEGIN-------------------------------------------
 Customer::Customer()
 {
     name = "";
@@ -116,11 +116,11 @@ Customer::Customer(Seller *s)
 
 string Customer::getName()
 {
-    	string temp = seller->getInfo();
-    	int printLocation = seatLocation % 10;
-    	temp += "0";
-    	temp += (char)(printLocation + 48);
-        return temp;
+    string temp = seller->getInfo();
+    int printLocation = seatLocation % 10;
+    temp += "0";
+    temp += (char)(printLocation + 48);
+    return temp;
 }
 
 string Customer::getSellerInfo()
@@ -133,22 +133,22 @@ string Customer::getSellerInfo()
 
 void Customer::setSeller(Seller *s)
 {
-	seller = s;
+    seller = s;
 }
 
 void Customer::setName(string s)
 {
-	name = s;
+    name = s;
 }
 
 SellerType Customer::getWantedTicket()
 {
-	return seller->getSellerType();
+    return seller->getSellerType();
 }
 
 void Customer::setSeatLocation(int n)
 {
-	seatLocation = n;
+    seatLocation = n;
 }
 
 Seat::Seat()
@@ -201,7 +201,7 @@ Seller::Seller(int n, SellerType t, SeatManager *s)
 
 SellerType Seller::getSellerType()
 {
-	return type;
+    return type;
 }
 
 int Seller::generateWaitTime()
@@ -217,12 +217,12 @@ int Seller::generateWaitTime()
 
 string Seller::getInfo()
 {
-	char c1 = (char)type;
-	char c2 =  (char)(id + 49);
-	string temp = "TT";
-	temp[0] = c1;
-	temp[1] = c2;
-	//cout << "Testing inside Sller::getInfo() : " << c1 << "," << c2 << " - "<< temp << endl;
+    char c1 = (char)type;
+    char c2 =  (char)(id + 49);
+    string temp = "TT";
+    temp[0] = c1;
+    temp[1] = c2;
+    //cout << "Testing inside Sller::getInfo() : " << c1 << "," << c2 << " - "<< temp << endl;
     return temp;
 }
 
@@ -370,8 +370,8 @@ void SeatManager::print()
 
     cout << endl;
 }
-
-// run function to sell tickets
+// CLASS DEFINITIONS END---------------------------------------------
+// run function for sellers to sell tickets
 void *sellerRun(void *t)
 {
     Seller* seller = (Seller *) t;
@@ -381,12 +381,12 @@ void *sellerRun(void *t)
         sleep(0.1);
     }
     
-    cout << "Sleeping in thread " << endl;
-    cout << "Thread with seller : " << seller->getInfo() << "  ...exiting " << endl;
+    //cout << "Sleeping in thread " << endl;
+    cout << "Thread with seller id : " << seller->getInfo() << "  ...exiting " << endl;
     pthread_exit(NULL);
 }
 
-// run function to wake up customers
+// run function for customers to wake up, line up, and order a ticket
 void *customerRun(void *t)
 {
     Seller* seller = (Seller *) t;
@@ -400,33 +400,35 @@ void *customerRun(void *t)
     //c->setName(ids[rNum]);
     //c->setWantedTicket[seller[rNum].getSellerType()];
     seller[rNum].enqueue(c);
-
-    cout << "Customer left at " << times << endl;
+    cout << "Customer arrived at Seller " << seller[rNum].getInfo() << "'s queue." << endl;
+    //cout << "Customer left at " << times << endl;
     pthread_exit(NULL);
 }
 
 // main() is where program execution begins.
-int main()
+int main(int argc, char *argv[])
 {
+    // converts to int and gets number of customers
+    stringstream convert(argv[1]);
+    convert >> num_customers;
+
     // set the seed
     srand((unsigned)time(NULL));
 
     SeatManager sm;
-    pthread_t _customers[NUM_CUSTOMERS];
+    pthread_t _customers[num_customers];
     pthread_t _sellers[NUM_SELLERS];
     int thread_check; // 0 means successfully created
     Seller sellers[NUM_SELLERS];
+    int customers_created = 0;
     
-
-    // create sellers
+    // create sellers with id and type
     for(int i = 0; i < NUM_SELLERS; i++ )
     {
         sellers[i].setID(ids[i]);
         sellers[i].setSellerType(types[i]);
         sellers[i].setSeatManager(&sm);
     }
-
-    
 
     // create seller threads
     for(int i = 0; i < NUM_SELLERS; i++ )
@@ -441,8 +443,7 @@ int main()
         }
     }
 
-    
-
+    // run until timer runs out or sold out
     while(SHOULD_EXIST && !sm.isFull())
     {
         if (times == 5)
@@ -450,28 +451,28 @@ int main()
             SHOULD_EXIST = false;
         }
         // create customer threads
-        for(int i = 0; i < NUM_CUSTOMERS; i++ )
+        while(customers_created < num_customers)
         {
-            cout << "main() : creating customer thread, " << i << endl;
-            thread_check = pthread_create(&_customers[i], NULL, customerRun, (void *)sellers );
+            cout << "main() : creating customer thread, " << customers_created << endl;
+            thread_check = pthread_create(&_customers[customers_created], NULL, customerRun, (void *)sellers );
             if (thread_check)
             {
                 cout << "Error:unable to create thread," << thread_check << endl;
                 exit(-1);
             }
+            customers_created++;
         }
         sleep(1);
         times++;
     }
 
- // free attribute and wait for the other threads
+    // free attribute and wait for the other threads
    for( int i=0; i < NUM_SELLERS; i++ ){
-      pthread_join(_sellers[i], NULL);
-      cout << "Main: completed thread id :" << i << endl;
-      //cout << "  exiting with status :" << endl;
-   }
+        pthread_join(_sellers[i], NULL);
+        cout << "Main: completed seller thread id :" << i << endl;
+        //cout << "  exiting with status :" << endl;
+    }
 
-    sm.print();
-
+    sm.print(); // print seating chart
     return 0;
 }
