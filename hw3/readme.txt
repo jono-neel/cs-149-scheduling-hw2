@@ -9,8 +9,10 @@ TODO REQUIREMENTS
 -optional: allow sellers to sell in other seller type's region when their region is full
 -EC: customer leaves after 10 seconds
 
-Need to have C++ compiler installed on computer.
-Suggest to compile and run on Linux via terminal.
+RUNNING PROGRAM
+-Need to have C++ compiler installed on computer.
+-Suggested to compile and run on Linux via terminal since pthread library is included.
+-If not on Linux, need to figure out how to include pthread library.
 
 INSTALLING GNU C/C++ COMPILER ON LINUX
 https://help.ubuntu.com/community/InstallingCompilers
