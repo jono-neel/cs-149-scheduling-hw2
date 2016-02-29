@@ -14,7 +14,7 @@
 #define MAX_H_RANGE 2
 #define MAX_M_RANGE 4
 #define MAX_L_RANGE 7
-#define SIM_PROCESSING_TIME 20 // real time multiplier
+#define SIM_PROCESSING_TIME 2 
 // NAMESPACE
 using namespace std;
 // GLOBAL VARIABLES
@@ -22,10 +22,10 @@ enum SellerType { H = 72, M = 77, L = 76 }; // ascii code
 int times = 0;
 bool SHOULD_EXIST =  true;
 pthread_mutex_t mutexx;
-//SellerType types[10] = {H, M, M, M, L, L, L, L, L, L};
-SellerType types[10] = {H, H, H, H, L, L, L, L, L, L};
+SellerType types[10] = {H, M, M, M, L, L, L, L, L, L};
+//SellerType types[10] = {H, H, H, H, L, L, L, L, L, L};
 int ids[10] = {1, 1, 2, 3, 1, 2, 3, 4, 5, 6};
-int num_customers = 0;
+int max_seller_queue_size = 0;
 // FORWARD DECLARATIONS
 class Seller;
 class Seat;
@@ -99,6 +99,7 @@ class SeatManager
         int availableSeats = CHART_SIZE;
         int tracker_H = 0;
         int tracker_M = CHART_SIZE / 2;
+        int tracker_M_helper = 0;
         int tracker_L = CHART_SIZE - 1;
     public:
         SeatManager();
@@ -300,7 +301,7 @@ bool Seller::isClosed()
 
 bool Seller::isFull()
 {
-    return customerQueue.size() >= num_customers;
+    return customerQueue.size() >= max_seller_queue_size;
 }
 
 bool Seller::isSeatManagerFull()
@@ -329,85 +330,62 @@ bool SeatManager::bookTicket(Customer *cPtr)
 {
     if (availableSeats <= 0)
     {
-        cout << "=============================================PPP " << availableSeats << endl;
         return false;
     }
-    cout << "=============================================SSS " << availableSeats << endl;
 
     if (cPtr->getWantedTicket() == H)
     {
-        // if (tracker_H >= CHART_SIZE / 2)
-        // {
-        //     return false;
-        // }
-        // else
-        // {
         int i = 0;
         for (; i < CHART_SIZE; i++)
         {
             if (seatChart[i].getAvailable())
             {
-                cout << "SUP ?" << endl;
                 cPtr->setSeatLocation(i);
                 seatChart[i].book(cPtr);
                 availableSeats--;
-                cout << "HHH+++++++++++++++++++++++++++++++++++++++HHH  " << i << endl;
                 return true;
             }
         }
-
-        
-
-        
-        //tracker_H++;
     }
-    /*else if (cPtr->getWantedTicket() == M)
+    else if (cPtr->getWantedTicket() == M)
     {
-        if (tracker_M > tracker_L)
-        {
-            return false;
-        }
-        else
-        {
-            cPtr->setSeatLocation(tracker_M);
-            seatChart[tracker_M].book(cPtr);
-            tracker_M++;
 
+        int multiplier = 10;
+        for(int i = 0; i < CHART_SIZE && !isFull(); i++, tracker_M_helper++)
+        {
+            if(tracker_M_helper >= 10)
+            {    
+                tracker_M_helper = 0;
+                tracker_M += multiplier;
+                multiplier += 10;
+                multiplier *= -1;
+            }
+            if (seatChart[tracker_M + tracker_M_helper].getAvailable())
+            {
+                cPtr->setSeatLocation(i);
+                seatChart[tracker_M + tracker_M_helper].book(cPtr);
+                availableSeats--;
+                return true;
+            }
         }
-    }*/
-    else if(cPtr->getWantedTicket() == L)//st == L
+            
+    }        
+    else
     {
         int i = CHART_SIZE - 1;
         for (; i >= 0; i--)
         {
             if (seatChart[i].getAvailable())
             {
-                cout << "SUP ?" << endl;
                 cPtr->setSeatLocation(i);
                 seatChart[i].book(cPtr);
                 availableSeats--;
-                cout << "LLL+++++++++++++++++++++++++++++++++++++++LLL  " << i << endl;
                 return true;
             }
         }
-
-        
-        // if (tracker_L < tracker_M)
-        // {
-        //     return false;
-        // }
-        // else
-        // {
-        //     cPtr->setSeatLocation(tracker_L);
-        //     seatChart[tracker_L].book(cPtr);
-        //     tracker_L--;
-
-        // }
-
     }
 
     return false;
-    
 }
 
 bool SeatManager::isFull()
@@ -483,13 +461,13 @@ int main(int argc, char *argv[])
 
     // converts to int and gets number of customers
     stringstream convert(argv[1]);
-    convert >> num_customers;
+    convert >> max_seller_queue_size;
 
     // set the seed
     srand((unsigned)time(NULL));
 
     SeatManager sm;
-    pthread_t _customers[num_customers];
+    
     pthread_t _sellers[NUM_SELLERS];
     int thread_check; // 0 means successfully created
     Seller sellers[NUM_SELLERS];
@@ -519,6 +497,7 @@ int main(int argc, char *argv[])
     //cout << "HELOOO ?";
 
     // run until timer runs out or sold out
+    int rNum = 0;
     while(SHOULD_EXIST)
     {
         if (times == SIM_TIME)
@@ -528,10 +507,12 @@ int main(int argc, char *argv[])
             //cout << "STOP PUSH CUSTOMERS " << endl;
             break;
         }
-        
-        // create customer threads
 
-        for(int i = 0; i < NUM_SELLERS; i++)
+        // create customer threads
+        rNum = rand() % (CHART_SIZE / 5 + 1);
+        cout << "++++++++++++++++++++++++++++++++++++++++++++++++RN" << rNum << endl;
+        pthread_t _customers[rNum];
+        for(int i = 0; i < rNum; i++)
         {
             cout << "main() : creating customer thread, " << customers_created << endl;
             thread_check = pthread_create(&_customers[i], NULL, customerRun, (void *)sellers);
@@ -543,7 +524,7 @@ int main(int argc, char *argv[])
             customers_created++;
         }
         sleep(1);
-        cout << times++ << "************************" << endl;
+        cout << "EVENTS HAPPENED AT TIMESTAMP " << times++ << endl;
 
         //cout << "STOP PUSH CUSTOMERS " << endl;
     }
@@ -552,7 +533,7 @@ int main(int argc, char *argv[])
 //    free attribute and wait for the other threads
    for( int i = 0; i < NUM_SELLERS; i++ )
    {
-        cout << "Main: completed seller thread IDDDDDDD :" << i << endl;
+        cout << "Main: completed seller thread ID :" << i << endl;
         pthread_join(_sellers[i], NULL);
         
         //cout << "  exiting with status :" << endl;
