@@ -1,10 +1,8 @@
 HW3 README
 
 TODO REQUIREMENTS
--(Matthew)medium-ticket seats need to go 5, 6, 4, 7, 3, 8, 2, 9, 1
-  notes to Matthew: uncomment/comment line 25/26
+-TESTING 
 -optional: clean up code
--EC: customer leaves after 10 seconds
 
 RUNNING PROGRAM
 -Need to have C++ compiler installed on computer.
