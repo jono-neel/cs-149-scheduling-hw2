@@ -8,7 +8,7 @@
 #include <iterator>
 #include <sstream> // for stringstream
 // GLOBAL CONSTANTS
-#define SIM_TIME 22
+#define SIM_TIME 30
 #define CHART_SIZE 100
 #define NUM_SELLERS 10
 #define MIN_H_RANGE 1
@@ -28,6 +28,7 @@ SellerType types[10] = {H, M, M, M, L, L, L, L, L, L};
 //SellerType types[10] = {H, H, H, H, L, L, L, L, L, L};
 int ids[10] = {1, 1, 2, 3, 1, 2, 3, 4, 5, 6};
 int max_seller_queue_size = 0;
+int turned_away_customers = 0;
 // FORWARD DECLARATIONS
 class Seller;
 class Seat;
@@ -312,6 +313,7 @@ bool Seller::process()
     if (sm->isFull())
     {
         cout << "Seller " << this->getInfo() << " told customer concert is full." << endl;
+        turned_away_customers++;
         pthread_mutex_unlock(&mutexx);
         return false;
     }
@@ -360,6 +362,7 @@ bool Seller::dequeue(Customer *c)
                 if(customerQueue[i] == c)
                 {
                     customerQueue.erase(iPtr);
+                    turned_away_customers++;
                     cout << "I WAITED FOR TOO LONG ALREADY NO I'M LEAVING SELLER : " << this->getInfo() << endl;
                     break;
                 }
@@ -500,12 +503,16 @@ void *sellerRun(void *t)
     while (times < SIM_TIME)
     {
         //cout << ":::::::::::::::::::::::::::::::::::::: " << times << endl;
+        if(seller->isSeatManagerFull()){
+            cout << "Concert is full, seller fired : " << seller->getInfo() << endl;
+            pthread_exit(NULL);
+        }
         if(seller != NULL);
             seller->process();
     }
     
     //cout << "Sleeping in thread " << endl;
-    cout << "+++++++Thread with seller id : " << seller->getInfo() << "  ...exiting " << endl;
+    cout << "Thread with seller id : " << seller->getInfo() << "  ...exiting " << endl;
     pthread_exit(NULL);
 }
 
@@ -532,6 +539,7 @@ void *customerRun(void *t)
 
             if(seller[rNum].isSeatManagerFull())
             {
+                turned_away_customers++;
                 cout << seller[rNum].getInfo() << " TOLD CUSTOMER THAT CONCERT IS FULL DUDE " << endl;
             }
         }
@@ -628,5 +636,6 @@ int main(int argc, char *argv[])
 
     sm.print(); // print seating chart
 
+    cout << customers_created - CHART_SIZE  - 1 << " TURNED AWAY ~,~" << endl;
     return 0;
 }
