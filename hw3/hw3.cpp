@@ -8,15 +8,15 @@
 #include <iterator>
 #include <sstream> // for stringstream
 // GLOBAL CONSTANTS
-#define SIM_TIME 30
+#define SIM_TIME 60
 #define CHART_SIZE 100
 #define NUM_SELLERS 10
 #define MIN_H_RANGE 1
 #define MAX_H_RANGE 2
 #define MAX_M_RANGE 4
 #define MAX_L_RANGE 7
-#define SIM_PROCESSING_TIME 2 
-#define CUSTOMER_WAITING_TIME 5
+#define SIM_PROCESSING_TIME 1
+#define CUSTOMER_WAITING_TIME 10
 // NAMESPACE
 using namespace std;
 // GLOBAL VARIABLES
@@ -25,10 +25,10 @@ int times = 0;
 bool SHOULD_EXIST =  true;
 pthread_mutex_t mutexx;
 SellerType types[10] = {H, M, M, M, L, L, L, L, L, L};
-//SellerType types[10] = {H, H, H, H, L, L, L, L, L, L};
 int ids[10] = {1, 1, 2, 3, 1, 2, 3, 4, 5, 6};
 int max_seller_queue_size = 0;
 int turned_away_customers = 0;
+int seated_customers[3] = {0, 0, 0};
 // FORWARD DECLARATIONS
 class Seller;
 class Seat;
@@ -55,7 +55,6 @@ class Customer
         void setSeatLocation(int n);
         void startWaitingInQueue();
         void dequeue();
-        //void* customerWaitRun(void *t);
 };
 
 class Seat
@@ -81,8 +80,6 @@ class Seller
         SellerType type;
         vector<Customer *> customerQueue;
         SeatManager *sm;
-        int total_customers;
-        bool closed;
     public:
         Seller();
         Seller(int n, SellerType t, SeatManager *s);
@@ -96,7 +93,6 @@ class Seller
         void enqueue(Customer *c);
         bool dequeue(Customer *c);
         SellerType getSellerType();
-        bool isClosed();
         bool isFull();
         bool isSeatManagerFull();
 };
@@ -112,9 +108,11 @@ class SeatManager
         int tracker_L = CHART_SIZE - 1;
     public:
         SeatManager();
+
         bool bookTicket(Customer *cPtr);
         void print();
         bool isFull();
+        int getAvailableSeats();
 };
 // CLASS DECLARATIONS END--------------------------------------------
 // CLASS DEFINITIONS BEGIN-------------------------------------------
@@ -172,26 +170,24 @@ void Customer::dequeue()
     if(seller != NULL)
         seller->dequeue(this);
 }
+
 void* customerWaitRun(void *t)
 {   
     sleep(CUSTOMER_WAITING_TIME);
+    // critical region, customer leaves after 10 seconds
     pthread_mutex_lock(&mutexx);
     Customer *cPtr = (Customer *)t;
-    if(cPtr == NULL)
-        cout << "OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO     OOOOOOOOOO" << endl;
-    if(cPtr->seller == NULL)
-        cout << "KKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK     KKKKKKKKKKKKK" << endl;
-    //pthread_mutex_lock(&mutexx);
     if(cPtr != NULL)
+    {
         cPtr->dequeue(), cPtr = NULL;
+    }
     pthread_mutex_unlock(&mutexx);
+
     pthread_exit(NULL);
 }
 
-
 void Customer::startWaitingInQueue()
 {
-    int temp = 0;
     pthread_create(&waitingThread, NULL, customerWaitRun, (void *)this);
 }
 
@@ -199,17 +195,17 @@ Seat::Seat()
 {
     isAvailable = true;
     customer = NULL;
-};
+}
 
 void Seat::book(Customer *pCus)
 {
     isAvailable = !isAvailable;
     customer = pCus;
-};
+}
 
 bool Seat::getAvailable(){
     return isAvailable;
-};
+}
 
 void Seat::setCustomer(Customer* pCus)
 {
@@ -223,18 +219,20 @@ Customer* Seat::getCustomer()
 
 void Seat::print()
 {
-    //cout << "Noooo\n" ;
     if (isAvailable)
+    {
         cout << "----";
+    }
     else
+    {
         cout << customer->getName();
+    }
 }
 
 
 Seller::Seller()
 {
     name = "";
-    closed = false;
 }
 
 Seller::Seller(int n, SellerType t, SeatManager *s)
@@ -243,7 +241,6 @@ Seller::Seller(int n, SellerType t, SeatManager *s)
     name += (char)(n + 48);
     type = t;
     sm = s;
-    closed = false;
 }
 
 SellerType Seller::getSellerType()
@@ -269,7 +266,6 @@ string Seller::getInfo()
     string temp = "TT";
     temp[0] = c1;
     temp[1] = c2;
-    //cout << "Testing inside Sller::getInfo() : " << c1 << "," << c2 << " - "<< temp << endl;
     return temp;
 }
 
@@ -292,14 +288,7 @@ void Seller::setSeatManager(SeatManager *s)
 
 bool Seller::process()
 {
-/*    if (customerQueue.empty())
-    {
-        return false;
-    }*/
-
     sleep(generateWaitTime() / (float)(SIM_PROCESSING_TIME));
-    // Wait on the "emptySlots" semaphore.
-    //sem_wait(&emptySlots);
 
     // Acquire the mutex lock to protect the buffer.
     pthread_mutex_lock(&mutexx);
@@ -313,7 +302,6 @@ bool Seller::process()
     if (sm->isFull())
     {
         cout << "Seller " << this->getInfo() << " told customer concert is full." << endl;
-        turned_away_customers++;
         pthread_mutex_unlock(&mutexx);
         return false;
     }
@@ -322,66 +310,54 @@ bool Seller::process()
         // Critical region: Insert an item into the buffer.
         if(customerQueue.front() == NULL)
         {
-            cout << "GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG" << endl;
             pthread_mutex_unlock(&mutexx);
             return false;
         }
         sm->bookTicket(customerQueue.front());
         if(customerQueue.size() != 0)
             customerQueue.erase(customerQueue.begin());
-        //sm->print();
         cout << "Seller " << this->getInfo() << " assigned seat to customer." << endl;
         // Release the mutex lock.
         pthread_mutex_unlock(&mutexx);
         return true;
     }
     
-    // Signal the "filledSlots" semaphore.
-    //sem_post(&filledSlots);  // signal
 }
 
 void Seller::enqueue(Customer *c)
 {
     customerQueue.push_back(c);
     c->startWaitingInQueue();
-    //total_customers++;
 }
 
 bool Seller::dequeue(Customer *c)
 {
-
-    //pthread_mutex_lock(&mutexx);
-    if(customerQueue.size() != 0){
-        //cout << customerQueue.size() << "ASDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD" << endl;
-        vector<Customer *>::iterator iPtr = customerQueue.begin();// = 
-        //cout << customerQueue.size() << "ASDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD" << endl;
+    if(customerQueue.size() != 0)
+    {
+        vector<Customer *>::iterator iPtr = customerQueue.begin();
 
         for(int i = 0; i < customerQueue.size(); i++)
         {
             if(customerQueue[i] != NULL)
+            {
                 if(customerQueue[i] == c)
                 {
                     customerQueue.erase(iPtr);
                     turned_away_customers++;
-                    cout << "I WAITED FOR TOO LONG ALREADY NO I'M LEAVING SELLER : " << this->getInfo() << endl;
+                    cout << "I WAITED FOR TOO LONG ALREADY NOW I'M LEAVING SELLER : " << this->getInfo() << endl;
                     break;
                 }
-                else{
-                    //cout << "DAMRREROOOOOOOOOTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT" << endl;
+                else
+                {    
                     advance(iPtr, 1);
                 }
+            }
             else
+            {
                 break;
+            }
         }
     }   
-    //pthread_mutex_unlock(&mutexx);
-
-
-}
-
-bool Seller::isClosed()
-{
-    return closed;
 }
 
 bool Seller::isFull()
@@ -417,7 +393,7 @@ bool SeatManager::bookTicket(Customer *cPtr)
     {
         return false;
     }
-
+    // sell high priced ticket
     if (cPtr->getWantedTicket() == H)
     {
         int i = 0;
@@ -428,10 +404,12 @@ bool SeatManager::bookTicket(Customer *cPtr)
                 cPtr->setSeatLocation(i);
                 seatChart[i].book(cPtr);
                 availableSeats--;
+                seated_customers[0]++;
                 return true;
             }
         }
     }
+    // sell medium priced ticket
     else if (cPtr->getWantedTicket() == M)
     {
 
@@ -450,11 +428,13 @@ bool SeatManager::bookTicket(Customer *cPtr)
                 cPtr->setSeatLocation(i);
                 seatChart[tracker_M + tracker_M_helper].book(cPtr);
                 availableSeats--;
+                seated_customers[1]++;
                 return true;
             }
         }
             
-    }        
+    }    
+    // sell low priced ticked    
     else
     {
         int i = CHART_SIZE - 1;
@@ -465,6 +445,7 @@ bool SeatManager::bookTicket(Customer *cPtr)
                 cPtr->setSeatLocation(i);
                 seatChart[i].book(cPtr);
                 availableSeats--;
+                seated_customers[2]++;
                 return true;
             }
         }
@@ -478,16 +459,19 @@ bool SeatManager::isFull()
     return availableSeats == 0;
 }
 
+int SeatManager::getAvailableSeats()
+{
+    return availableSeats;
+}
+
 void SeatManager::print()
 {
-    // create 100 seats
     for (int i = 0; i < CHART_SIZE; i++)
     {
         if (i % 10 == 0) // creates matrix
         {
             cout << endl;
         }
-        //cout << i << "       ";
         seatChart[i].print();
         cout << " | ";
         
@@ -502,16 +486,14 @@ void *sellerRun(void *t)
     Seller* seller = (Seller *) t;
     while (times < SIM_TIME)
     {
-        //cout << ":::::::::::::::::::::::::::::::::::::: " << times << endl;
         if(seller->isSeatManagerFull()){
-            cout << "Concert is full, seller fired : " << seller->getInfo() << endl;
+            cout << "Concert is full, seller stops selling tickets : " << seller->getInfo() << endl;
             pthread_exit(NULL);
         }
         if(seller != NULL);
             seller->process();
     }
     
-    //cout << "Sleeping in thread " << endl;
     cout << "Thread with seller id : " << seller->getInfo() << "  ...exiting " << endl;
     pthread_exit(NULL);
 }
@@ -523,14 +505,13 @@ void *customerRun(void *t)
     int rNum = 0;
     if(times < SIM_TIME){
     // sleep for random time 0-59 seconds
-        sleep((rand() % 5 + 1) / (float)SIM_PROCESSING_TIME);
-        rNum = rand() % 10;
+        sleep((rand() % 60) / (float)SIM_PROCESSING_TIME);
+        rNum = rand() % 10; // random seller
         pthread_mutex_lock(&mutexx);
         if(seller != NULL)
         {
             if(!seller[rNum].isFull() && !seller[rNum].isSeatManagerFull())
             {
-                //cout << "Cus created " << endl;
                 Customer *c = new Customer();    
                 c->setSeller(&(seller[rNum]));
                 seller[rNum].enqueue(c);
@@ -540,13 +521,11 @@ void *customerRun(void *t)
             if(seller[rNum].isSeatManagerFull())
             {
                 turned_away_customers++;
-                cout << seller[rNum].getInfo() << " TOLD CUSTOMER THAT CONCERT IS FULL DUDE " << endl;
+                cout << seller[rNum].getInfo() << " TOLD CUSTOMER THAT CONCERT IS FULL" << endl;
             }
         }
         pthread_mutex_unlock(&mutexx);
     }
-    
-    //cout << "Customer left at " << times << endl;
     pthread_exit(NULL);
 }
 
@@ -562,7 +541,6 @@ int main(int argc, char *argv[])
     srand((unsigned)time(NULL));
 
     SeatManager sm;
-    
     pthread_t _sellers[NUM_SELLERS];
     int thread_check; // 0 means successfully created
     Seller sellers[NUM_SELLERS];
@@ -576,11 +554,10 @@ int main(int argc, char *argv[])
         sellers[i].setSeatManager(&sm);
     }
 
-    //cout << clock() << endl;
     //create seller threads
     for(int i = 0; i < NUM_SELLERS; i++ )
     {
-        cout << "main() : creating seller thread, " << i << endl;
+        //cout << "main() : creating seller thread, " << i << endl;
 
         thread_check = pthread_create(&_sellers[i], NULL, sellerRun, (void *)&sellers[i] );
         if (thread_check)
@@ -589,27 +566,24 @@ int main(int argc, char *argv[])
             exit(-1);
         }
     }
-    //cout << "HELOOO ?";
 
-    // run until timer runs out or sold out
+    // run until timer runs out
     int rNum = 0;
     while(SHOULD_EXIST)
     {
+        // stops loop when timer runs out
         if (times == SIM_TIME)
         {
-            cout << "STOP PUSH CUSTOMERS " << endl;
             SHOULD_EXIST = false;
-            //cout << "STOP PUSH CUSTOMERS " << endl;
             break;
         }
 
         // create customer threads
         rNum = rand() % (CHART_SIZE / 5 + 1);
-        cout << "++++++++++++++++++++++++++++++++++++++++++++++++RN" << rNum << endl;
         pthread_t _customers[rNum];
         for(int i = 0; i < rNum; i++)
         {
-            cout << "main() : creating customer thread, " << customers_created << endl;
+            //cout << "main() : creating customer thread, " << customers_created << endl;
             thread_check = pthread_create(&_customers[i], NULL, customerRun, (void *)sellers);
             if (thread_check)
             {
@@ -620,12 +594,10 @@ int main(int argc, char *argv[])
         }
         sleep(1);
         cout << "\nEVENTS HAPPENED AT TIMESTAMP " << times++ << endl << endl;
-
-        //cout << "STOP PUSH CUSTOMERS " << endl;
     }
 
 
-//    free attribute and wait for the other threads
+   // free attribute and wait for the other threads
    for( int i = 0; i < NUM_SELLERS; i++ )
    {
         cout << "Main: completed seller thread ID :" << i << endl;
@@ -636,6 +608,9 @@ int main(int argc, char *argv[])
 
     sm.print(); // print seating chart
 
-    cout << customers_created - CHART_SIZE  - 1 << " TURNED AWAY ~,~" << endl;
+    cout << "\n" << seated_customers[0] << " high-priced customers seated." << endl;
+    cout << seated_customers[1] << " medium-priced customers seated." << endl;
+    cout << seated_customers[2] << " low-priced customers seated." << endl;
+    cout << customers_created + sm.getAvailableSeats() - CHART_SIZE - 1 << " TURNED AWAY ~,~" << endl;
     return 0;
 }
