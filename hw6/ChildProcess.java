@@ -45,28 +45,28 @@ public class ChildProcess implements Runnable
 
                     double t = (double) ((System.currentTimeMillis() - startTime) / 1000.0);
                     String time = String.format("%06.3f", t);
-                    if(childName == 5)
-                    {
-                            messageNumber++;
-                            message = "0:" + time + ": Child " + (childName + 1) + 
-                                            " : UserMessage " + messageNumber;
-                            System.out.println(message);
-                    }
-                    else
-                    {
-                        try {
-                            //						messageNumber++;
-                            message = "0:" + time + ": Child " + (childName + 1) +
-                                            " : Message " + messageNumber;
-//						System.out.println(message);
-                            
-                            int nBytes = pipe.sink().write(ByteBuffer.wrap(message.getBytes()));
-                            System.out.println("Write: " + nBytes + " to pipe: " + message);
-                            buf.clear();
-                        } catch (IOException ex) {
-                            Logger.getLogger(ChildProcess.class.getName()).log(Level.SEVERE, null, ex);
-                        }
-                    }	
+                    if(childName == 4)
+			{
+				messageNumber++;
+				message = "0:" + time + ": Child " + (childName + 1) + 
+						" : UserMessage ";
+				message += in.nextLine();
+				//System.out.println(message);
+			}
+			else
+			{
+				messageNumber++;
+				message = "0:" + time + ": Child " + (childName + 1) +
+						" : Message " + messageNumber;
+				//System.out.println(message);
+			}
+			try {
+				int nBytes = pipe.sink().write(ByteBuffer.wrap(message.getBytes()));
+				System.out.println("Write: " + nBytes + " to pipe: " + message);
+				buf.clear();
+			} catch (IOException ex) {
+				Logger.getLogger(ChildProcess.class.getName()).log(Level.SEVERE, null, ex);
+			}	
 		}
 	}
 }
