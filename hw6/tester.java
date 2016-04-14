@@ -1,5 +1,6 @@
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.nio.ByteBuffer;
 import java.nio.channels.Pipe;
 import java.nio.channels.SelectionKey;
@@ -11,12 +12,9 @@ import java.util.Set;
 
 
 /**
- * TODO: create parent process to read from source channels
- * TODO: write to output file
- * TODO: make child 5 read from user input
- * TODO: not 100% sure blocking for read/write via select is working
- * TODO: make parent append time to message
- * TODO: terminate parent process/program after all child process have finished
+ * Parent process that creates 5 child processes connected via pipes. Parent uses
+ * select to make sure pipes are ready to be read from and then reads messages
+ * from pipes byte by byte and writes the messages straight into the file "output.txt"
  * 
  * used tutorials at:
  * http://tutorials.jenkov.com/java-nio/selectors.html#selectedkeys
@@ -28,91 +26,83 @@ import java.util.Set;
 public class tester {
 
 	public static void main(String[] args) throws IOException, InterruptedException {
-            long startTime = System.currentTimeMillis();
-            ChildProcess[] c = new ChildProcess[5];
-            Thread[] t = new Thread[5];                
-            Pipe[] pipes = new Pipe[5];
-            Selector selector;
-            //SelectionKey[] key = new SelectionKey[5];
-            int readyChannels;
+		long startTime = System.currentTimeMillis();
+		ChildProcess[] c = new ChildProcess[5];
+		Thread[] t = new Thread[5];                
+		Pipe[] pipes = new Pipe[5]; //one pipe per child
+		Selector selector;
+		int readyChannels;
+		ByteBuffer buf = ByteBuffer.allocate(128);
+		selector = Selector.open();
+		PrintWriter writer = new PrintWriter("output.txt", "UTF-8");
 
-            ByteBuffer buf = ByteBuffer.allocate(48);
-            selector = Selector.open();
-            
-            for(int i = 0; i < 5; i++)
-            {
-                pipes[i] = Pipe.open();
-                pipes[i].source().configureBlocking(false);
-                //key[i] = 
-                pipes[i].source().register(selector, SelectionKey.OP_READ);
-                
-                c[i] = new ChildProcess(i,startTime, pipes[i]);
-                t[i] = new Thread(c[i]);
-            }
-            
-            for(int i = 0; i < 5; i++)
-            {
-                    t[i].start();
-            }
-		// TODO Auto-generated method stub
-                
-            Random rand =  new Random();
-            boolean stopRunning = true;
-            while(stopRunning)
-            {
-                for(int k = 0; k < 5; k++)
-                {
-                    if(!t[k].isAlive())
-                    {
-                        stopRunning = !stopRunning;
-                        break;
-                    }
-                }
-                int nBytes;
-                
-                readyChannels = selector.select();
-                //System.out.println("Channal select: " + readyChannels);
-                if(readyChannels == 0)
-                {
-                    System.out.println("No channels are ready");
-                    continue;   
-                }
 
-                Set<SelectionKey> selectedKeys = selector.selectedKeys();
+		for(int i = 0; i < 5; i++)
+		{
+			pipes[i] = Pipe.open();
+			pipes[i].source().configureBlocking(false);
+			pipes[i].source().register(selector, SelectionKey.OP_READ);
+			c[i] = new ChildProcess(i,startTime, pipes[i]);
+			t[i] = new Thread(c[i]);
+		}
 
-                Iterator<SelectionKey> keyIterator = selectedKeys.iterator();
+		for(int i = 0; i < 5; i++)
+		{
+			t[i].start(); //start the child processes
+		}
 
-                while(keyIterator.hasNext()) 
-                {
-                    
-                    SelectionKey keyy = keyIterator.next();
-                    if(keyy.isAcceptable()) {
-                        // a connection was accepted by a ServerSocketChannel.
+		Random rand =  new Random();
+		boolean stopRunning = true;
+		while(stopRunning) //stop the parent process if any of the children have finished
+		{
+			for(int k = 0; k < 5; k++)
+			{
+				if(!t[k].isAlive())
+				{
+					stopRunning = !stopRunning;
+					break;
+				}
+			}
 
-                    } else if (keyy.isConnectable()) {
-                        // a connection was established with a remote server.
+			readyChannels = selector.select();
+			if(readyChannels == 0)
+			{
+				System.out.println("No channels are ready");
+				continue;   
+			}
+			Set<SelectionKey> selectedKeys = selector.selectedKeys();
+			Iterator<SelectionKey> keyIterator = selectedKeys.iterator();
+			while(keyIterator.hasNext()) //while pipes are ready to be read from
+			{
 
-                    } else if (keyy.isReadable()) 
-                    {
-                        
-                        nBytes = ((Pipe.SourceChannel)keyy.channel()).read(buf);
+				SelectionKey keyy = keyIterator.next();
+				if(keyy.isAcceptable()) {
+					// a connection was accepted by a ServerSocketChannel.
 
-                        System.out.println("Read: " + nBytes + " from pipe: " + new String(buf.array(), "ASCII"));
-                        Thread.sleep(500);
+				} else if (keyy.isConnectable()) {
+					// a connection was established with a remote server.
 
-                    } 
-                    else if (keyy.isWritable()) 
-                    {
-                    }
+				} else if (keyy.isReadable()) 
+				{
+					double time = (double) ((System.currentTimeMillis() - startTime) / 1000.0);
+					String timestamp = String.format("%06.3f", time);
+					writer.println("Parent timestamp: " + timestamp); //write parent time stamp
+					int bytesRead = ((Pipe.SourceChannel)keyy.channel()).read(buf); //read into buffer.
+					buf.flip();  //make buffer ready for read
 
-                    buf.clear();
+					while(buf.hasRemaining()){
+						writer.print((char) buf.get()); // read 1 byte at a time and print it to the file
+					}
+					buf.clear(); //make buffer ready for writing
+					bytesRead = ((Pipe.SourceChannel)keyy.channel()).read(buf);
 
-                  keyIterator.remove();
-                    
-            }
-                
-            
+				} 
+				else if (keyy.isWritable()) 
+				{
+				}
+				buf.clear(); //clear the buffer
+				keyIterator.remove(); 
+			} 
+		}
+		writer.close();
 	}
-
-    }
-}
