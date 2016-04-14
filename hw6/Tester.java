@@ -23,7 +23,7 @@ import java.util.Set;
  * http://tutorials.jenkov.com/java-nio/buffers.html
  */
 
-public class tester {
+public class Tester {
 
 	public static void main(String[] args) throws IOException, InterruptedException {
 		long startTime = System.currentTimeMillis();
