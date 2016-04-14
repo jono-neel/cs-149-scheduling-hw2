@@ -8,14 +8,13 @@ import java.nio.channels.Selector;
 import java.util.Iterator;
 import java.util.Random;
 import java.util.Set;
-
-
+import java.util.Arrays;
 
 /**
  * Parent process that creates 5 child processes connected via pipes. Parent uses
  * select to make sure pipes are ready to be read from and then reads messages
  * from pipes byte by byte and writes the messages straight into the file "output.txt"
- * 
+ *
  * used tutorials at:
  * http://tutorials.jenkov.com/java-nio/selectors.html#selectedkeys
  * http://tutorials.jenkov.com/java-nio/selectors.html
@@ -23,12 +22,14 @@ import java.util.Set;
  * http://tutorials.jenkov.com/java-nio/buffers.html
  */
 
-public class Tester {
+public class Tester
+{
 
-	public static void main(String[] args) throws IOException, InterruptedException {
+	public static void main(String[] args) throws IOException, InterruptedException
+  {
 		long startTime = System.currentTimeMillis();
-		ChildProcess[] c = new ChildProcess[5];
-		Thread[] t = new Thread[5];                
+		ChildProcess[] childProcess = new ChildProcess[5];
+		Thread[] childThread = new Thread[5];
 		Pipe[] pipes = new Pipe[5]; //one pipe per child
 		Selector selector;
 		int readyChannels;
@@ -36,39 +37,40 @@ public class Tester {
 		selector = Selector.open();
 		PrintWriter writer = new PrintWriter("output.txt", "UTF-8");
 
-
+    // create child processes with pipes
 		for(int i = 0; i < 5; i++)
 		{
 			pipes[i] = Pipe.open();
 			pipes[i].source().configureBlocking(false);
 			pipes[i].source().register(selector, SelectionKey.OP_READ);
-			c[i] = new ChildProcess(i,startTime, pipes[i]);
-			t[i] = new Thread(c[i]);
+			childProcess[i] = new ChildProcess(i, startTime, pipes[i]);
+			childThread[i] = new Thread(childProcess[i]);
 		}
 
 		for(int i = 0; i < 5; i++)
 		{
-			t[i].start(); //start the child processes
+			childThread[i].start(); //start the child processes
 		}
 
 		Random rand =  new Random();
 		boolean stopRunning = true;
 		while(stopRunning) //stop the parent process if any of the children have finished
 		{
-			for(int k = 0; k < 5; k++)
-			{
-				if(!t[k].isAlive())
-				{
-					stopRunning = !stopRunning;
-					break;
-				}
-			}
+      // stop after all children process terminate
+      if (!stillRunning(Arrays.copyOf(childThread, childThread.length - 1)))
+      {
+        // interrupt user input thread if all other threads are dead
+        childThread[childThread.length - 1].interrupt();
+        stopRunning = false;
+        System.out.println("\nAll child processes terminated.");
+        break;
+      }
 
 			readyChannels = selector.select();
 			if(readyChannels == 0)
 			{
 				System.out.println("No channels are ready");
-				continue;   
+				continue;
 			}
 			Set<SelectionKey> selectedKeys = selector.selectedKeys();
 			Iterator<SelectionKey> keyIterator = selectedKeys.iterator();
@@ -82,27 +84,51 @@ public class Tester {
 				} else if (keyy.isConnectable()) {
 					// a connection was established with a remote server.
 
-				} else if (keyy.isReadable()) 
+				} else if (keyy.isReadable())
 				{
 					double time = (double) ((System.currentTimeMillis() - startTime) / 1000.0);
 					String timestamp = String.format("%06.3f", time);
-					writer.println("Parent timestamp: " + timestamp); //write parent time stamp
+					writer.print("0:" + timestamp + ", "); //write parent time stamp
 					int bytesRead = ((Pipe.SourceChannel)keyy.channel()).read(buf); //read into buffer.
 					buf.flip();  //make buffer ready for read
 
+          char prev = ' ';
 					while(buf.hasRemaining()){
-						writer.print((char) buf.get()); // read 1 byte at a time and print it to the file
-					}
+            char cur = (char) buf.get();
+            // print timestamp again if buffer has multiple messages
+            if (prev == '\n')
+            {
+              writer.print("0:" + timestamp + ", ");
+            }
+						writer.print(cur); // read 1 byte at a time and print it to the file
+            prev = cur;
+          }
 					buf.clear(); //make buffer ready for writing
 					bytesRead = ((Pipe.SourceChannel)keyy.channel()).read(buf);
 
-				} 
-				else if (keyy.isWritable()) 
+				}
+				else if (keyy.isWritable())
 				{
 				}
 				buf.clear(); //clear the buffer
-				keyIterator.remove(); 
-			} 
+				keyIterator.remove();
+			}
 		}
+    System.out.println("Parent process terminated");
 		writer.close();
+    System.exit(0);
 	}
+
+  // Checks if threads are still running
+  public static boolean stillRunning(Thread[] array)
+  {
+    for(int i = 0; i < array.length; i++)
+    {
+      if(array[i].isAlive())
+      {
+        return true;
+      }
+    }
+    return false;
+  }
+}
